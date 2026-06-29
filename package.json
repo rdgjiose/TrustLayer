@@ -1,0 +1,26 @@
+{
+  "name": "trustlayer",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "workers"
+  ],
+  "scripts": {
+    "dev": "concurrently -k -n frontend,worker \"npm run dev --workspace frontend\" \"npm run dev --workspace workers\"",
+    "dev:frontend": "npm run dev --workspace frontend",
+    "dev:worker": "npm run dev --workspace workers",
+    "build": "npm run build --workspace frontend && npm run build --workspace workers",
+    "typecheck": "npm run typecheck --workspace frontend && npm run typecheck --workspace workers",
+    "lint": "npm run lint --workspace frontend && npm run lint --workspace workers"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250628.0",
+    "@eslint/js": "^9.30.0",
+    "concurrently": "^9.2.0",
+    "eslint": "^9.30.0",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.35.0",
+    "wrangler": "^4.22.0"
+  }
+}
