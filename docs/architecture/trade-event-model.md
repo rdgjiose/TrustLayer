@@ -6,7 +6,7 @@ Version: 1.0
 
 Status: Draft
 
-⸻
+---
 
 1. Purpose
 
@@ -16,7 +16,7 @@ The Trade Event Model is the first concrete application of the Reputation Model.
 
 It explains how a real-world trade becomes a verifiable reputation event.
 
-⸻
+---
 
 2. Core Philosophy
 
@@ -30,7 +30,7 @@ The goal is not to eliminate all disagreement.
 
 The goal is to create portable, tamper-resistant trading history.
 
-⸻
+---
 
 3. Trade vs Reputation Event
 
@@ -52,7 +52,7 @@ The trade may change state.
 
 The reputation events are append-only.
 
-⸻
+---
 
 4. Trade Lifecycle
 
@@ -80,7 +80,7 @@ Buyer No-show
 Seller No-show
 Dispute Submitted
 
-⸻
+---
 
 5. Trade States
 
@@ -116,7 +116,7 @@ Disputed
 
 One party submits a dispute event.
 
-⸻
+---
 
 6. Minimum Trade Data
 
@@ -136,7 +136,7 @@ A trade should include:
 
 MVP may store only a simplified version.
 
-⸻
+---
 
 7. External Marketplace Link
 
@@ -154,7 +154,7 @@ Examples:
 
 The marketplace link helps connect TrustLayer reputation events to real trading context.
 
-⸻
+---
 
 8. Terms Snapshot
 
@@ -174,7 +174,7 @@ TrustLayer should store a hash of the agreed terms.
 
 The original terms may be stored off-chain.
 
-⸻
+---
 
 9. Confirmation Model
 
@@ -190,7 +190,7 @@ Single-party confirmation is recorded but does not complete the trade.
 
 This reduces false completion claims.
 
-⸻
+---
 
 10. Dispute Model
 
@@ -208,7 +208,7 @@ Possible dispute events:
 
 Only resolved or verified outcomes should affect reputation strongly.
 
-⸻
+---
 
 11. No-show Model
 
@@ -225,7 +225,7 @@ No-show claims should not automatically damage reputation.
 
 They require supporting context or repeated behavioural patterns.
 
-⸻
+---
 
 12. Second-hand Item Subjectivity
 
@@ -250,7 +250,7 @@ The system records evidence and history.
 
 Users interpret trust.
 
-⸻
+---
 
 13. Reputation Impact
 
@@ -279,7 +279,7 @@ The weighting algorithm belongs to the Reputation Engine.
 
 The Trade Event Model only defines events.
 
-⸻
+---
 
 14. Anti-farming Considerations
 
@@ -296,7 +296,7 @@ Possible suspicious patterns:
 
 The system should record enough metadata to allow future detection.
 
-⸻
+---
 
 15. Privacy Considerations
 
@@ -319,7 +319,7 @@ Private information should include:
 * Sensitive evidence
 * Full item details if not authorized
 
-⸻
+---
 
 16. MVP Trade Flow
 
@@ -341,7 +341,7 @@ Reputation profile updates
 
 MVP does not include payment, escrow, arbitration, or automated marketplace import.
 
-⸻
+---
 
 17. Example Event Sequence
 
@@ -360,7 +360,7 @@ Trade Completed
 
 This sequence becomes part of both users’ trading history.
 
-⸻
+---
 
 18. Design Summary
 

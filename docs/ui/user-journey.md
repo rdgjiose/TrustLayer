@@ -4,7 +4,7 @@ Document: docs/ui/user-journey.md
 Version: 1.0
 Status: Draft
 
-⸻
+---
 
 1. Purpose
 
@@ -24,7 +24,7 @@ During Trade
 
 After Trade
 
-⸻
+---
 
 2. Core Principle
 
@@ -34,7 +34,7 @@ TrustLayer does not judge truth.
 
 TrustLayer records verifiable behaviour across the trading lifecycle.
 
-⸻
+---
 
 3. Buyer Journey
 
@@ -107,7 +107,7 @@ Example:
 
 During this time, the buyer may submit post-trade events if a clear issue appears.
 
-⸻
+---
 
 4. Seller Journey
 
@@ -139,7 +139,7 @@ Step 6 — Reputation Updated
 
 If both parties confirm completion, the trade becomes part of the seller’s and buyer’s reputation history.
 
-⸻
+---
 
 5. TrustLayer Insertion Points
 
@@ -175,7 +175,7 @@ User action:
 
 Submit issue, evidence, response, or resolution.
 
-⸻
+---
 
 6. Post-trade Observation
 
@@ -198,7 +198,7 @@ These are recorded as events.
 
 They are not automatic judgements.
 
-⸻
+---
 
 7. What TrustLayer Does Not Do
 
@@ -215,7 +215,7 @@ TrustLayer records behaviour and evidence.
 
 Users interpret reputation.
 
-⸻
+---
 
 8. Summary
 

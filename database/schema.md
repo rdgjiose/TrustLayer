@@ -4,7 +4,7 @@ Document: database/schema.md
 Version: 1.0
 Status: Draft
 
-⸻
+---
 
 1. Purpose
 
@@ -16,7 +16,7 @@ It is not the final source of historical truth.
 
 Immutable reputation evidence should eventually be anchored to blockchain records.
 
-⸻
+---
 
 2. Database Role
 
@@ -36,7 +36,7 @@ The database may cache calculated reputation.
 
 The blockchain preserves immutable event references.
 
-⸻
+---
 
 3. Database Technology
 
@@ -48,7 +48,7 @@ Underlying model:
 
 SQLite-compatible relational database
 
-⸻
+---
 
 4. Core Tables
 
@@ -62,7 +62,7 @@ reputation_events
 evidence_references
 reputation_stats
 
-⸻
+---
 
 5. Table: users
 
@@ -83,7 +83,7 @@ Notes:
 * trustlayer_id is the public user identifier.
 * public_profile_slug is used in public profile URLs.
 
-⸻
+---
 
 6. Table: identities
 
@@ -112,7 +112,7 @@ Private identity values should be hashed or encrypted.
 
 Do not store raw phone numbers or emails unless strictly required.
 
-⸻
+---
 
 7. Table: marketplace_references
 
@@ -135,7 +135,7 @@ xhs
 wechat
 manual
 
-⸻
+---
 
 8. Table: trades
 
@@ -174,7 +174,7 @@ cancelled
 expired
 disputed
 
-⸻
+---
 
 9. Table: reputation_events
 
@@ -210,7 +210,7 @@ evidence_uploaded
 issue_resolved
 false_complaint_detected
 
-⸻
+---
 
 10. Table: evidence_references
 
@@ -252,7 +252,7 @@ participants_only
 private
 restricted
 
-⸻
+---
 
 11. Table: reputation_stats
 
@@ -278,7 +278,7 @@ Notes:
 * It can be rebuilt.
 * It is not the source of truth.
 
-⸻
+---
 
 12. Indexes
 
@@ -293,7 +293,7 @@ CREATE INDEX idx_reputation_events_actor_user_id ON reputation_events(actor_user
 CREATE INDEX idx_reputation_events_target_user_id ON reputation_events(target_user_id);
 CREATE INDEX idx_evidence_references_event_id ON evidence_references(event_id);
 
-⸻
+---
 
 13. Data Integrity Rules
 
@@ -305,7 +305,7 @@ Important rules:
 * Raw private identity values should not be publicly exposed.
 * Historical events should be append-only.
 
-⸻
+---
 
 14. MVP Simplifications
 
@@ -320,7 +320,7 @@ MVP 0.1 may simplify:
 
 The schema is designed to allow future expansion.
 
-⸻
+---
 
 15. Design Summary
 

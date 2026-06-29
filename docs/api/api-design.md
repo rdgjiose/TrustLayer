@@ -4,7 +4,7 @@ Document: docs/api/api-design.md
 Version: 1.0
 Status: Draft
 
-⸻
+---
 
 1. Purpose
 
@@ -20,7 +20,7 @@ The API connects:
 
 The API should remain simple, predictable, and easy for Codex to implement.
 
-⸻
+---
 
 2. API Philosophy
 
@@ -34,7 +34,7 @@ Core principles:
 * The system records behaviour, not final truth.
 * Blockchain stores evidence references, not reputation scores.
 
-⸻
+---
 
 3. Base URL
 
@@ -48,7 +48,7 @@ https://api.trustlayer.nz/api
 
 MVP deployment may use a Cloudflare Workers preview URL.
 
-⸻
+---
 
 4. Response Format
 
@@ -71,7 +71,7 @@ Error response:
   }
 }
 
-⸻
+---
 
 5. Authentication
 
@@ -88,7 +88,7 @@ Authenticated endpoints require a valid user session.
 
 Public endpoints should never expose private identity data.
 
-⸻
+---
 
 6. Public Profile API
 
@@ -127,7 +127,7 @@ Example response:
 
 Private data must not be returned.
 
-⸻
+---
 
 7. Current User API
 
@@ -145,7 +145,7 @@ Returns current authenticated user.
   }
 }
 
-⸻
+---
 
 8. Create User API
 
@@ -175,7 +175,7 @@ MVP may simplify authentication.
 
 Do not expose raw identity values publicly.
 
-⸻
+---
 
 9. Create Trade API
 
@@ -205,7 +205,7 @@ Response:
   }
 }
 
-⸻
+---
 
 10. Get Trade API
 
@@ -242,7 +242,7 @@ Response:
   }
 }
 
-⸻
+---
 
 11. Accept Trade API
 
@@ -266,7 +266,7 @@ Response:
   }
 }
 
-⸻
+---
 
 12. Confirm Completion API
 
@@ -296,7 +296,7 @@ completed
 
 and a trade_completed reputation event is created.
 
-⸻
+---
 
 13. Submit Post-trade Event API
 
@@ -327,7 +327,7 @@ This is an event record.
 
 It is not a judgement.
 
-⸻
+---
 
 14. Evidence Reference API
 
@@ -356,7 +356,7 @@ Response:
   }
 }
 
-⸻
+---
 
 15. Reputation Events API
 
@@ -379,7 +379,7 @@ Response:
 
 Sensitive event payloads should not be public by default.
 
-⸻
+---
 
 16. MVP Error Codes
 
@@ -394,7 +394,7 @@ ROLE_NOT_ALLOWED
 PRIVATE_DATA_FORBIDDEN
 INTERNAL_ERROR
 
-⸻
+---
 
 17. Security Rules
 
@@ -406,7 +406,7 @@ The API must enforce:
 * Users cannot access private evidence without permission.
 * Users cannot expose another user’s private identity.
 
-⸻
+---
 
 18. Future Marketplace API
 
@@ -418,7 +418,7 @@ POST /marketplace/trades
 
 These are not included in MVP 0.1.
 
-⸻
+---
 
 19. Design Summary
 

@@ -4,7 +4,7 @@ Document: contracts/smart-contract-design.md
 Version: 1.0
 Status: Draft
 
-⸻
+---
 
 1. Purpose
 
@@ -14,7 +14,7 @@ The smart contract is not responsible for storing full reputation profiles.
 
 Its purpose is to preserve tamper-resistant references to reputation events and evidence.
 
-⸻
+---
 
 2. Core Principle
 
@@ -39,7 +39,7 @@ The smart contract should not store:
 * emails
 * subjective reputation scores
 
-⸻
+---
 
 3. Contract Responsibilities
 
@@ -61,7 +61,7 @@ The smart contract is not responsible for:
 * acting as escrow
 * hosting marketplace listings
 
-⸻
+---
 
 4. Main Contract Concept
 
@@ -73,7 +73,7 @@ Purpose:
 
 Maintain an append-only ledger of reputation events.
 
-⸻
+---
 
 5. Core Data Model
 
@@ -97,7 +97,7 @@ Notes:
 * actorUserRef and targetUserRef should not expose private identity.
 * previousEventId supports history chaining.
 
-⸻
+---
 
 6. Event Types
 
@@ -115,7 +115,7 @@ ISSUE_RESOLVED
 
 Future event types may be added through versioning.
 
-⸻
+---
 
 7. Append-only Rule
 
@@ -135,7 +135,7 @@ ISSUE_RESOLVED
 
 History grows by adding events.
 
-⸻
+---
 
 8. Suggested Contract Interface
 
@@ -157,7 +157,7 @@ Returns:
 
 eventId
 
-⸻
+---
 
 getEvent
 
@@ -165,7 +165,7 @@ Returns one event by ID.
 
 getEvent(eventId)
 
-⸻
+---
 
 getUserEvents
 
@@ -173,7 +173,7 @@ Returns event IDs related to a user.
 
 getUserEvents(userRef)
 
-⸻
+---
 
 getTradeEvents
 
@@ -181,7 +181,7 @@ Returns event IDs related to a trade.
 
 getTradeEvents(tradeId)
 
-⸻
+---
 
 9. Privacy Design
 
@@ -198,7 +198,7 @@ Do not store:
 
 Use hashed or pseudonymous references.
 
-⸻
+---
 
 10. Off-chain Relationship
 
@@ -219,7 +219,7 @@ Hash of this payload is stored on-chain.
 
 If payload changes, the hash no longer matches.
 
-⸻
+---
 
 11. Blockchain-neutral Design
 
@@ -234,7 +234,7 @@ Possible implementations:
 
 The concept matters more than the chain.
 
-⸻
+---
 
 12. MVP Simplification
 
@@ -246,7 +246,7 @@ The smart contract anchors selected event hashes.
 
 This avoids overcomplicating the first build.
 
-⸻
+---
 
 13. Security Considerations
 
@@ -265,7 +265,7 @@ Future versions should add:
 * signature validation
 * replay protection
 
-⸻
+---
 
 14. Reputation Calculation
 
@@ -275,7 +275,7 @@ Reputation is calculated by the Reputation Engine from historical events.
 
 This allows algorithms to evolve without changing historical records.
 
-⸻
+---
 
 15. Design Summary
 

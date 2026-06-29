@@ -4,7 +4,7 @@ Document: docs/architecture/mvp-engineering-overview.md
 Version: 1.0
 Status: Draft
 
-⸻
+---
 
 1. Purpose
 
@@ -14,7 +14,7 @@ The goal is to transform the project philosophy and architecture into a buildabl
 
 MVP 0.1 focuses only on Trading Reputation.
 
-⸻
+---
 
 2. MVP Mission
 
@@ -22,7 +22,7 @@ MVP 0.1 should prove one core idea:
 
 A user can build portable trading reputation through verifiable trade events that are not owned by any marketplace.
 
-⸻
+---
 
 3. MVP Scope
 
@@ -45,7 +45,7 @@ MVP 0.1 does not include:
 * Marketplace listing system
 * Native mobile app
 
-⸻
+---
 
 4. Recommended Technical Stack
 
@@ -74,7 +74,7 @@ Storage:
 * MVP: minimal metadata only
 * Future: Cloudflare R2 / IPFS for evidence files
 
-⸻
+---
 
 5. Core MVP Pages
 
@@ -90,7 +90,7 @@ Actions:
 * Create trade link
 * View my profile
 
-⸻
+---
 
 Reputation Profile Page
 
@@ -109,7 +109,7 @@ Displays:
 * Recent activity
 * Timeline
 
-⸻
+---
 
 Create Trade Page
 
@@ -128,7 +128,7 @@ Output:
 
 * TrustLayer trade link
 
-⸻
+---
 
 Trade Page
 
@@ -150,7 +150,7 @@ Actions:
 * confirm completion
 * submit post-trade event
 
-⸻
+---
 
 6. Core Backend Modules
 
@@ -164,7 +164,7 @@ Handles:
 * linked email or phone
 * wallet reference
 
-⸻
+---
 
 Trade Module
 
@@ -175,7 +175,7 @@ Handles:
 * trade status
 * trade timeline
 
-⸻
+---
 
 Reputation Event Module
 
@@ -186,7 +186,7 @@ Handles:
 * event hashing
 * event persistence
 
-⸻
+---
 
 Reputation Profile Module
 
@@ -197,7 +197,7 @@ Handles:
 * recent activity
 * confidence indicators
 
-⸻
+---
 
 7. MVP Data Objects
 
@@ -210,7 +210,7 @@ Core objects:
 * EvidenceReference
 * MarketplaceReference
 
-⸻
+---
 
 8. MVP Data Flow
 
@@ -230,7 +230,7 @@ Reputation profile recalculated
         ↓
 Public profile updated
 
-⸻
+---
 
 9. Blockchain Role in MVP
 
@@ -252,7 +252,7 @@ It should not store:
 * email addresses
 * full item descriptions
 
-⸻
+---
 
 10. Development Order
 
@@ -270,7 +270,7 @@ Recommended build order:
 10. API integration
 11. Deployment to Cloudflare Pages
 
-⸻
+---
 
 11. Codex Working Rule
 
@@ -284,7 +284,7 @@ Before implementation, Codex must read:
 
 Codex must not implement features outside MVP scope unless explicitly instructed.
 
-⸻
+---
 
 12. Success Criteria
 
@@ -298,7 +298,7 @@ MVP 0.1 is successful when:
 * A public reputation profile updates.
 * The system does not require users to understand blockchain.
 
-⸻
+---
 
 13. Engineering Summary
 

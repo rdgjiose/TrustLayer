@@ -6,7 +6,7 @@ Version: 1.0
 
 Status: Draft
 
-⸻
+---
 
 1. Purpose
 
@@ -18,7 +18,7 @@ Its purpose is not to store user interfaces, marketplace data, or reputation sco
 
 Its purpose is to preserve immutable historical evidence.
 
-⸻
+---
 
 2. Core Philosophy
 
@@ -34,7 +34,7 @@ Blockchain does not store reputation.
 
 Blockchain stores the evidence from which reputation is derived.
 
-⸻
+---
 
 3. Ledger Responsibilities
 
@@ -53,7 +53,7 @@ The ledger is NOT responsible for:
 * dispute judgement
 * marketplace functionality
 
-⸻
+---
 
 4. Ledger Architecture
 
@@ -78,7 +78,7 @@ The blockchain records facts.
 
 Applications interpret facts.
 
-⸻
+---
 
 5. On-chain Data
 
@@ -99,7 +99,7 @@ Examples
 
 Large data should never be stored directly on-chain.
 
-⸻
+---
 
 6. Off-chain Data
 
@@ -118,7 +118,7 @@ Examples
 
 The blockchain stores only references or hashes.
 
-⸻
+---
 
 7. Event Chain
 
@@ -140,7 +140,7 @@ Every event references the previous event.
 
 Nothing is overwritten.
 
-⸻
+---
 
 8. Append-only Principle
 
@@ -162,7 +162,7 @@ History grows.
 
 History never disappears.
 
-⸻
+---
 
 9. Event Integrity
 
@@ -176,7 +176,7 @@ Each event contains:
 
 This allows anyone to verify that history has not been modified.
 
-⸻
+---
 
 10. Hash-based Evidence
 
@@ -200,7 +200,7 @@ Blockchain proves integrity.
 
 Storage provides availability.
 
-⸻
+---
 
 11. Digital Signatures
 
@@ -218,7 +218,7 @@ Future Arbitrator
 
 Each signature increases confidence.
 
-⸻
+---
 
 12. Privacy
 
@@ -236,7 +236,7 @@ Sensitive evidence
 
 The blockchain stores only cryptographic references.
 
-⸻
+---
 
 13. Ledger Evolution
 
@@ -262,7 +262,7 @@ History remains stable.
 
 Interpretation improves.
 
-⸻
+---
 
 14. Why Not Store Reputation Scores?
 
@@ -280,7 +280,7 @@ Reputation scores are generated dynamically.
 
 History remains the single source of truth.
 
-⸻
+---
 
 15. Ledger Security
 
@@ -300,7 +300,7 @@ Tamper resistance
 
 These properties create long-term trust.
 
-⸻
+---
 
 16. Future Multi-chain Support
 
@@ -320,7 +320,7 @@ The ledger model should remain blockchain-independent.
 
 Only the implementation changes.
 
-⸻
+---
 
 17. Architecture Summary
 

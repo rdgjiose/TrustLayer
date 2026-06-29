@@ -6,7 +6,7 @@ Version: 1.0
 
 Status: Draft
 
-⸻
+---
 
 1. Purpose
 
@@ -18,7 +18,7 @@ The page does not determine who is right.
 
 It records verifiable events throughout the trading lifecycle.
 
-⸻
+---
 
 2. Design Philosophy
 
@@ -32,7 +32,7 @@ Both participants contribute events to the same historical record.
 
 The trade becomes the source of future reputation events.
 
-⸻
+---
 
 3. Trade Lifecycle
 
@@ -52,7 +52,7 @@ Archived
 
 Every stage generates historical events.
 
-⸻
+---
 
 4. Page Layout
 
@@ -70,7 +70,7 @@ Actions
         ↓
 Observation Window
 
-⸻
+---
 
 5. Trade Summary
 
@@ -94,7 +94,7 @@ Facebook Marketplace
 Status
 Waiting for Buyer Confirmation
 
-⸻
+---
 
 6. Participants
 
@@ -114,7 +114,7 @@ Users may open each other’s Reputation Profile.
 
 Private information remains hidden.
 
-⸻
+---
 
 7. Trade Timeline
 
@@ -143,7 +143,7 @@ Timeline events are append-only.
 
 Nothing is overwritten.
 
-⸻
+---
 
 8. Trade Status
 
@@ -163,7 +163,7 @@ Possible states include:
 
 The current state should be clearly displayed.
 
-⸻
+---
 
 9. Available Actions
 
@@ -187,7 +187,7 @@ Seller may:
 
 Only valid actions should be visible.
 
-⸻
+---
 
 10. Confirmation Model
 
@@ -201,7 +201,7 @@ Trade Completed
 
 Single confirmation does not complete the trade.
 
-⸻
+---
 
 11. Observation Window
 
@@ -219,7 +219,7 @@ Possible duration
 
 MVP should use a simple configurable duration.
 
-⸻
+---
 
 12. Post-trade Events
 
@@ -239,7 +239,7 @@ These are historical events.
 
 They are not judgements.
 
-⸻
+---
 
 13. Evidence
 
@@ -256,7 +256,7 @@ Evidence files remain off-chain.
 
 Only hashes and references are stored on-chain.
 
-⸻
+---
 
 14. Trade Privacy
 
@@ -269,7 +269,7 @@ Public users should not see:
 
 Only trade participants may access sensitive information.
 
-⸻
+---
 
 15. Trade Completion
 
@@ -289,7 +289,7 @@ The system creates:
 
 Both users’ reputation histories are updated.
 
-⸻
+---
 
 16. Archived Trade
 
@@ -301,7 +301,7 @@ They cannot be edited.
 
 Only new events may reference them.
 
-⸻
+---
 
 17. Mobile-first Design
 
@@ -315,7 +315,7 @@ Typical usage:
 
 The interface should minimize the number of user actions.
 
-⸻
+---
 
 18. Example MVP Layout
 
@@ -344,7 +344,7 @@ Observation Window
 6 Days Remaining
 ----------------------------------------
 
-⸻
+---
 
 19. Design Summary
 

@@ -4,7 +4,7 @@ Document: docs/architecture/anti-reputation-farming.md
 Version: 1.0
 Status: Draft
 
-⸻
+---
 
 1. Purpose
 
@@ -14,7 +14,7 @@ Reputation farming means creating artificial or low-quality events to inflate re
 
 If this problem is not controlled, users may lose trust in the entire system.
 
-⸻
+---
 
 2. Core Principle
 
@@ -24,7 +24,7 @@ A user with 100 suspicious trades should not automatically appear more trustwort
 
 TrustLayer must evaluate the quality of historical evidence, not only the quantity of events.
 
-⸻
+---
 
 3. What Is Reputation Farming?
 
@@ -39,7 +39,7 @@ Reputation farming may include:
 * abnormal reputation growth
 * coordinated false complaints
 
-⸻
+---
 
 4. Design Philosophy
 
@@ -59,7 +59,7 @@ The system records patterns.
 
 Users interpret trust.
 
-⸻
+---
 
 5. Detection Signals
 
@@ -75,7 +75,7 @@ Possible suspicious signals include:
 * low marketplace diversity
 * high dispute rate after rapid growth
 
-⸻
+---
 
 6. Counterparty Diversity
 
@@ -90,7 +90,7 @@ Weaker:
 
 Counterparty diversity should influence reputation confidence.
 
-⸻
+---
 
 7. Time-based Analysis
 
@@ -105,7 +105,7 @@ No marketplace history
 
 This should reduce confidence.
 
-⸻
+---
 
 8. Marketplace Context
 
@@ -122,7 +122,7 @@ Useful context may include:
 
 If external context is missing, reputation confidence may be lower.
 
-⸻
+---
 
 9. Commercial Seller Detection
 
@@ -140,7 +140,7 @@ Likely commercial seller.
 
 This is a context label, not a punishment.
 
-⸻
+---
 
 10. False Complaint Abuse
 
@@ -155,7 +155,7 @@ Therefore:
 
 A complaint should not strongly affect reputation unless supported by evidence or resolution.
 
-⸻
+---
 
 11. Reputation Confidence
 
@@ -179,7 +179,7 @@ Confidence may be affected by:
 
 Confidence is not a moral score.
 
-⸻
+---
 
 12. MVP Approach
 
@@ -198,7 +198,7 @@ MVP should record enough metadata for future detection:
 
 Complex detection can be added later.
 
-⸻
+---
 
 13. Future Detection Methods
 
@@ -213,7 +213,7 @@ Future versions may use:
 
 These methods should remain explainable.
 
-⸻
+---
 
 14. Ethical Constraint
 
@@ -229,7 +229,7 @@ Fraudster
 
 Use factual explanations instead.
 
-⸻
+---
 
 15. Design Summary
 

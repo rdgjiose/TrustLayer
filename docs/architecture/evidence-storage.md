@@ -6,7 +6,7 @@ Version: 1.0
 
 Status: Draft
 
-⸻
+---
 
 1. Purpose
 
@@ -18,7 +18,7 @@ Without evidence, reputation becomes difficult to verify.
 
 TrustLayer therefore separates evidence preservation from reputation calculation.
 
-⸻
+---
 
 2. Core Philosophy
 
@@ -32,7 +32,7 @@ Reputation supports trust decisions.
 
 The blockchain protects evidence integrity rather than storing every piece of evidence.
 
-⸻
+---
 
 3. Design Goals
 
@@ -45,7 +45,7 @@ The evidence storage system should:
 * Allow long-term traceability
 * Remain independent of external marketplaces
 
-⸻
+---
 
 4. Evidence Layers
 
@@ -62,7 +62,7 @@ User Archive
 
 Each layer has a different responsibility.
 
-⸻
+---
 
 5. Layer 1 — Blockchain
 
@@ -83,7 +83,7 @@ Examples:
 
 The blockchain never stores large files.
 
-⸻
+---
 
 6. Layer 2 — Evidence Storage
 
@@ -110,7 +110,7 @@ Large files remain off-chain.
 
 Hashes link them to blockchain records.
 
-⸻
+---
 
 7. Layer 3 — User Archive
 
@@ -127,7 +127,7 @@ Future features:
 
 TrustLayer encourages users to preserve their own evidence.
 
-⸻
+---
 
 8. Evidence Types
 
@@ -145,7 +145,7 @@ Includes:
 * images
 * marketplace URL
 
-⸻
+---
 
 Trade Agreement
 
@@ -160,7 +160,7 @@ Examples:
 
 Only hashes may be stored on-chain.
 
-⸻
+---
 
 Confirmation Evidence
 
@@ -173,7 +173,7 @@ Examples:
 * payment confirmation
 * pickup confirmation
 
-⸻
+---
 
 Post-trade Evidence
 
@@ -186,7 +186,7 @@ Examples:
 * videos
 * documents
 
-⸻
+---
 
 9. Marketplace Independence
 
@@ -203,7 +203,7 @@ Therefore:
 
 Evidence should not rely entirely on external platforms.
 
-⸻
+---
 
 10. Snapshot Strategy
 
@@ -221,7 +221,7 @@ Possible snapshot fields:
 
 This preserves important context even if the original listing disappears.
 
-⸻
+---
 
 11. Hash Strategy
 
@@ -241,7 +241,7 @@ its hash no longer matches.
 
 This proves whether evidence has been modified.
 
-⸻
+---
 
 12. Retention Policy
 
@@ -267,7 +267,7 @@ Permanent
 
 Future versions may allow users to purchase permanent evidence storage.
 
-⸻
+---
 
 13. Privacy
 
@@ -283,7 +283,7 @@ TrustLayer should never expose:
 
 Evidence visibility should always respect user permissions.
 
-⸻
+---
 
 14. Ownership
 
@@ -297,7 +297,7 @@ Evidence should remain portable.
 
 Users should be able to export their own evidence.
 
-⸻
+---
 
 15. Storage Cost
 
@@ -315,7 +315,7 @@ Use hashes whenever possible.
 
 The blockchain should remain lightweight.
 
-⸻
+---
 
 16. Future Evolution
 
@@ -330,7 +330,7 @@ Future versions may support:
 
 The architecture should remain compatible with future technologies.
 
-⸻
+---
 
 17. Architecture Summary
 

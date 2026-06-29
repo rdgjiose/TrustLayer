@@ -8,7 +8,7 @@ Status: Living Document
 
 Last Updated: 2026-06-28
 
-⸻
+---
 
 TrustLayer Project Bible v1.1
 
@@ -19,7 +19,7 @@ This document is the highest design authority of the TrustLayer project.
 
 If implementation conflicts with this document, the implementation must be changed—not the philosophy.
 
-⸻
+---
 
 1. Mission
 
@@ -31,7 +31,7 @@ Today, that trust is owned by individual platforms.
 
 TrustLayer exists to return reputation ownership to the people who earn it.
 
-⸻
+---
 
 2. Vision
 
@@ -47,7 +47,7 @@ TrustLayer is not another marketplace.
 
 TrustLayer is a reputation infrastructure that existing marketplaces can reference.
 
-⸻
+---
 
 3. Core Philosophy
 
@@ -61,7 +61,7 @@ The system records history.
 
 The market interprets history.
 
-⸻
+---
 
 4. Core Principles
 
@@ -71,7 +71,7 @@ Reputation belongs to people.
 
 Never to platforms. 
 
-⸻
+---
 
 Principle 2
 
@@ -81,7 +81,7 @@ Never manufactured.
 
 Every reputation must originate from real behaviour.
 
-⸻
+---
 
 Principle 3
 
@@ -93,7 +93,7 @@ TrustLayer is a reputation recorder.
 
 Not a final authority.
 
-⸻
+---
 
 Principle 4
 
@@ -103,7 +103,7 @@ Historical events are never deleted.
 
 Corrections are added as new events.
 
-⸻
+---
 
 Principle 5
 
@@ -113,7 +113,7 @@ Blockchain does not create trust.
 
 People create trust.
 
-⸻
+---
 
 Principle 6
 
@@ -123,7 +123,7 @@ Platforms are contributors.
 
 Not owners.
 
-⸻
+---
 
 Principle 7
 
@@ -133,7 +133,7 @@ Behaviour statistics may be public.
 
 Personal privacy remains protected.
 
-⸻
+---
 
 Principle 8
 
@@ -143,7 +143,7 @@ Technology may change.
 
 The philosophy must remain.
 
-⸻
+---
 
 The Three Design Axioms
 
@@ -151,7 +151,7 @@ TrustLayer is built on three design axioms.
 
 These axioms define the foundation of the project and should remain stable even if technologies, frameworks, blockchains, or implementation details change.
 
-⸻
+---
 
 Axiom 1 — Ownership
 
@@ -163,7 +163,7 @@ Platforms may record, contribute, or reference reputation events, but they must 
 
 TrustLayer exists to move reputation ownership from platforms back to the people who earned it.
 
-⸻
+---
 
 Axiom 2 — History
 
@@ -179,7 +179,7 @@ Algorithms may evolve.
 
 History remains.
 
-⸻
+---
 
 Axiom 3 — Evidence
 
@@ -197,7 +197,7 @@ History supports reputation.
 
 Reputation is interpreted by users, marketplaces, and applications.
 
-⸻
+---
 
 Summary
 
@@ -221,7 +221,7 @@ History creates reputation.
 
 Blockchain protects evidence.
 
-⸻
+---
 
 5. Design Goals
 
@@ -241,7 +241,7 @@ TrustLayer should NOT become:
 * A centralized reputation authority
 * A universal social credit system
 
-⸻
+---
 
 6. Reputation Model
 
@@ -264,7 +264,7 @@ Reputation is calculated from history.
 
 History itself is never replaced.
 
-⸻
+---
 
 7. The Role of Blockchain
 
@@ -283,7 +283,7 @@ Blockchain is NOT responsible for:
 
 It only protects historical records.
 
-⸻
+---
 
 8. The Role of Users
 
@@ -295,7 +295,7 @@ Users decide whether to expose their reputation.
 
 Users benefit from long-term honest behaviour.
 
-⸻
+---
 
 9. The Role of Marketplaces
 
@@ -312,7 +312,7 @@ Marketplaces may contribute reputation events.
 
 Marketplaces may query reputation through APIs.
 
-⸻
+---
 
 10. MVP Definition
 
@@ -332,7 +332,7 @@ No complex arbitration.
 
 No AI judgement.
 
-⸻
+---
 
 11. Long-term Roadmap
 
@@ -368,7 +368,7 @@ Phase 5
 
 General Reputation Protocol
 
-⸻
+---
 
 12. AI Development Constitution
 
@@ -388,7 +388,7 @@ Prefer simplicity over cleverness.
 
 Documentation precedes implementation.
 
-⸻
+---
 
 13. Development Workflow
 
@@ -424,7 +424,7 @@ Review
 
 Merge
 
-⸻
+---
 
 14. Project Motto
 
@@ -438,7 +438,7 @@ Platforms reference reputation.
 
 TrustLayer protects reputation ownership.
 
-⸻
+---
 
 15. Final Statement
 

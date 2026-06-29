@@ -4,7 +4,7 @@ Document: docs/domain/domain-model-overview.md
 Version: 1.0
 Status: Draft
 
-⸻
+---
 
 1. Purpose
 
@@ -14,7 +14,7 @@ The domain model connects product design, database design, API design, and smart
 
 Before writing code, TrustLayer must clearly define what objects exist and how they relate to each other.
 
-⸻
+---
 
 2. Core Domain Objects
 
@@ -29,7 +29,7 @@ Marketplace
 
 These objects form the foundation of the system.
 
-⸻
+---
 
 3. High-level Relationship
 
@@ -47,7 +47,7 @@ Reputation History
 
 Marketplaces may create or reference trades, but they do not own reputation.
 
-⸻
+---
 
 4. User
 
@@ -63,7 +63,7 @@ A User may act as:
 
 A User owns their reputation history.
 
-⸻
+---
 
 5. Identity
 
@@ -81,7 +81,7 @@ Identity supports reputation accumulation.
 
 Identity is not reputation itself.
 
-⸻
+---
 
 6. Trade
 
@@ -101,7 +101,7 @@ A Trade is temporary.
 
 Its events become permanent history.
 
-⸻
+---
 
 7. Reputation Event
 
@@ -121,7 +121,7 @@ Reputation Events are append-only.
 
 They are the foundation of reputation history.
 
-⸻
+---
 
 8. Evidence
 
@@ -139,7 +139,7 @@ Evidence files should remain off-chain.
 
 Hashes or references may be stored on-chain.
 
-⸻
+---
 
 9. Marketplace
 
@@ -161,7 +161,7 @@ Marketplaces may:
 
 Marketplaces do not own user reputation.
 
-⸻
+---
 
 10. Object Relationship Example
 
@@ -173,7 +173,7 @@ Both confirm completion.
 TrustLayer records Reputation Events.
 Alice and Bob both gain trading history.
 
-⸻
+---
 
 11. Design Summary
 

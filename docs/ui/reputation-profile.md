@@ -4,7 +4,7 @@ Document: docs/ui/reputation-profile.md
 Version: 1.0
 Status: Draft
 
-⸻
+---
 
 1. Purpose
 
@@ -20,7 +20,7 @@ It does not judge the person.
 
 It presents verified reputation history in a clear and useful way.
 
-⸻
+---
 
 2. Core Design Question
 
@@ -30,7 +30,7 @@ What does a stranger need to know before deciding whether to trade with another 
 
 The page should support decision-making, not replace human judgement.
 
-⸻
+---
 
 3. Design Philosophy
 
@@ -53,7 +53,7 @@ Users interpret the information.
 
 TrustLayer records and presents history.
 
-⸻
+---
 
 4. Page Structure
 
@@ -71,7 +71,7 @@ Recent Activity
         ↓
 Event Timeline
 
-⸻
+---
 
 5. Profile Header
 
@@ -102,7 +102,7 @@ Do not show:
 * government ID
 * private wallet key
 
-⸻
+---
 
 6. Trust Summary
 
@@ -128,7 +128,7 @@ Reputation Confidence is not a moral score.
 
 It indicates how much historical evidence supports the profile.
 
-⸻
+---
 
 7. Trading Statistics
 
@@ -153,7 +153,7 @@ These metrics should be calculated from reputation events.
 
 They should not be manually editable.
 
-⸻
+---
 
 8. Verification Signals
 
@@ -173,7 +173,7 @@ Verification does not equal reputation.
 
 It only increases confidence that the profile belongs to a persistent identity.
 
-⸻
+---
 
 9. Recent Activity
 
@@ -189,7 +189,7 @@ Last 30 days:
 
 This helps users distinguish long-term reputation from current behaviour.
 
-⸻
+---
 
 10. Event Timeline
 
@@ -209,7 +209,7 @@ Evidence uploaded. Seller responded.
 
 The timeline should not expose private details unless explicitly authorized.
 
-⸻
+---
 
 11. Reputation Confidence
 
@@ -235,7 +235,7 @@ Confidence should not be presented as a credit score.
 
 It is only a signal about evidence quality.
 
-⸻
+---
 
 12. Suspicious Activity Indicators
 
@@ -256,7 +256,7 @@ Bad user
 Fraudster
 Untrusted
 
-⸻
+---
 
 13. Public vs Private View
 
@@ -282,7 +282,7 @@ Visible only to the profile owner:
 * identity settings
 * privacy settings
 
-⸻
+---
 
 14. Marketplace Embed View
 
@@ -298,7 +298,7 @@ View full profile
 
 This allows marketplaces to reference reputation without owning it.
 
-⸻
+---
 
 15. Mobile-first Design
 
@@ -316,7 +316,7 @@ The first screen should answer quickly:
 
 Is this person worth continuing with?
 
-⸻
+---
 
 16. What Not to Show
 
@@ -332,7 +332,7 @@ The Reputation Profile should not show:
 
 TrustLayer must protect privacy while showing useful reputation history.
 
-⸻
+---
 
 17. MVP Profile Fields
 
@@ -350,7 +350,7 @@ MVP 0.1 should include only:
 
 Do not implement complex scoring in MVP 0.1.
 
-⸻
+---
 
 18. Example MVP Layout
 
@@ -386,7 +386,7 @@ Trade Completed
 Profile Created
 ------------------------------------------------
 
-⸻
+---
 
 19. Design Summary
 

@@ -8,7 +8,7 @@ Status: Draft
 
 Last Updated: 2026-06-28
 
-⸻
+---
 
 TrustLayer
 
@@ -20,7 +20,7 @@ Unlike traditional marketplaces, TrustLayer does not list products, process paym
 
 Instead, it enables people to build, own, and carry their trading reputation across different marketplaces.
 
-⸻
+---
 
 Why TrustLayer?
 
@@ -34,7 +34,7 @@ If the user changes platform, loses an account, or the platform changes its poli
 
 TrustLayer believes that reputation should belong to the person who earned it.
 
-⸻
+---
 
 Our Mission
 
@@ -46,7 +46,7 @@ Blockchain preserves reputation by protecting immutable historical records.
 
 Marketplaces simply reference reputation—they do not own it.
 
-⸻
+---
 
 What TrustLayer Is
 
@@ -58,7 +58,7 @@ TrustLayer is:
 * An open reputation API for marketplaces
 * A long-term digital reputation protocol
 
-⸻
+---
 
 What TrustLayer Is NOT
 
@@ -74,7 +74,7 @@ Existing marketplaces continue to provide listings, messaging, logistics, and pa
 
 TrustLayer only provides reputation services.
 
-⸻
+---
 
 Design Principles
 
@@ -87,7 +87,7 @@ Our design follows several fundamental principles.
 5. Marketplaces contribute reputation events instead of owning reputation.
 6. Technology serves philosophy, not the other way around.
 
-⸻
+---
 
 MVP (Phase 1)
 
@@ -107,7 +107,7 @@ No dispute arbitration.
 
 No marketplace functionality.
 
-⸻
+---
 
 Long-term Vision
 
@@ -123,7 +123,7 @@ In the future, the same reputation infrastructure may support:
 
 Each reputation domain remains independent while sharing the same decentralized foundation.
 
-⸻
+---
 
 Architecture
 
@@ -141,7 +141,7 @@ Marketplace APIs
     ↓
 Marketplace Applications
 
-⸻
+---
 
 Development Philosophy
 
@@ -173,7 +173,7 @@ Review
 
 This ensures every line of code reflects the project’s core philosophy.
 
-⸻
+---
 
 Documentation
 
@@ -189,7 +189,7 @@ The project documentation is organized as follows:
 * database/ — Data models
 * tests/ — Testing
 
-⸻
+---
 
 Current Status
 
@@ -197,13 +197,13 @@ Stage: Research & Architecture
 
 The project is currently defining its core philosophy, system architecture, and MVP before implementation begins.
 
-⸻
+---
 
 License
 
 License will be determined before the first public release.
 
-⸻
+---
 
 Contact
 

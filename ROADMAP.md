@@ -6,7 +6,7 @@ Version: 1.0
 
 Status: Living Document
 
-⸻
+---
 
 Roadmap Philosophy
 
@@ -20,7 +20,7 @@ Every phase should answer one question:
 
 How does this phase move reputation ownership from platforms to people?
 
-⸻
+---
 
 Phase 0 — Research & Foundation
 
@@ -45,7 +45,7 @@ Success Criteria
 
 The project is fully designed before implementation begins.
 
-⸻
+---
 
 Phase 1 — Trading Reputation MVP
 
@@ -80,7 +80,7 @@ Success Criteria
 
 Users can successfully build and display portable trading reputation.
 
-⸻
+---
 
 Phase 2 — Cross-platform Reputation
 
@@ -106,7 +106,7 @@ Success Criteria
 
 Reputation becomes portable across multiple trading platforms.
 
-⸻
+---
 
 Phase 3 — Open Reputation API
 
@@ -128,7 +128,7 @@ Success Criteria
 
 External applications begin consuming TrustLayer reputation.
 
-⸻
+---
 
 Phase 4 — Reputation Intelligence
 
@@ -151,7 +151,7 @@ Success Criteria
 
 Higher trust with reduced abuse.
 
-⸻
+---
 
 Phase 5 — Multi-domain Reputation
 
@@ -176,7 +176,7 @@ Success Criteria
 
 Portable reputation becomes useful across multiple domains.
 
-⸻
+---
 
 Phase 6 — TrustLayer Protocol
 
@@ -194,7 +194,7 @@ Features
 
 TrustLayer becomes digital infrastructure instead of a standalone application.
 
-⸻
+---
 
 Long-term Vision
 
@@ -220,7 +220,7 @@ Open Reputation Infrastructure
 
 Digital Trust Layer
 
-⸻
+---
 
 Product Evolution
 
@@ -242,7 +242,7 @@ Stage 3
 
 An open protocol
 
-⸻
+---
 
 Guiding Principle
 
@@ -256,7 +256,7 @@ Does it move TrustLayer closer to becoming open reputation infrastructure?
 
 If the answer is “No”, the feature should not be implemented.
 
-⸻
+---
 
 Current Stage
 

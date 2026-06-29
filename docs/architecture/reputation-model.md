@@ -6,7 +6,7 @@ Version: 1.0
 
 Status: Draft
 
-⸻
+---
 
 1. Purpose
 
@@ -20,7 +20,7 @@ Reputation is calculated from historical events.
 
 History itself is never replaced.
 
-⸻
+---
 
 2. Core Philosophy
 
@@ -36,7 +36,7 @@ Therefore,
 
 TrustLayer preserves behaviour rather than ratings.
 
-⸻
+---
 
 3. Reputation Architecture
 
@@ -58,7 +58,7 @@ History is permanent.
 
 Presentation may evolve.
 
-⸻
+---
 
 4. Reputation Event
 
@@ -95,7 +95,7 @@ Once recorded,
 
 it can never be modified.
 
-⸻
+---
 
 5. Reputation Categories
 
@@ -121,7 +121,7 @@ Domains remain independent.
 
 TrustLayer avoids producing a universal reputation score.
 
-⸻
+---
 
 6. Reputation Event Types
 
@@ -141,7 +141,7 @@ Long-term Active
 
 Successful Dispute Resolution
 
-⸻
+---
 
 Neutral Events
 
@@ -155,7 +155,7 @@ Marketplace Linked
 
 Wallet Migrated
 
-⸻
+---
 
 Negative Events
 
@@ -175,7 +175,7 @@ Negative events are historical facts.
 
 They are not punishments.
 
-⸻
+---
 
 7. Reputation Calculation
 
@@ -205,7 +205,7 @@ Algorithms may evolve.
 
 Historical events remain unchanged.
 
-⸻
+---
 
 8. Reputation Ownership
 
@@ -219,7 +219,7 @@ TrustLayer simply preserves historical events.
 
 Users carry their reputation between platforms.
 
-⸻
+---
 
 9. Reputation Confidence
 
@@ -243,7 +243,7 @@ Confidence helps users evaluate reputation quality.
 
 It never replaces reputation itself.
 
-⸻
+---
 
 10. Reputation Farming
 
@@ -271,7 +271,7 @@ Detection algorithms may improve over time.
 
 Historical events remain unchanged.
 
-⸻
+---
 
 11. False Complaints
 
@@ -301,7 +301,7 @@ False complaints themselves become reputation events.
 
 The system records behaviour from both parties.
 
-⸻
+---
 
 12. Privacy
 
@@ -333,7 +333,7 @@ Private messages
 
 TrustLayer separates reputation from personal identity.
 
-⸻
+---
 
 13. Reputation Lifecycle
 
@@ -355,7 +355,7 @@ History never disappears.
 
 Reputation continuously evolves.
 
-⸻
+---
 
 14. Future Evolution
 
@@ -377,7 +377,7 @@ None of these replace historical events.
 
 Events remain the permanent source of truth.
 
-⸻
+---
 
 15. Design Summary
 

@@ -6,7 +6,7 @@ Version: 1.0
 
 Status: Draft
 
-⸻
+---
 
 1. Purpose
 
@@ -16,7 +16,7 @@ TrustLayer is designed to preserve reputation history while respecting user priv
 
 Privacy and ethics are fundamental architectural requirements rather than optional features.
 
-⸻
+---
 
 2. Core Philosophy
 
@@ -30,7 +30,7 @@ TrustLayer respects privacy.
 
 Users make trust decisions.
 
-⸻
+---
 
 3. Privacy by Design
 
@@ -44,7 +44,7 @@ Every new feature should answer:
 
 The default should always favour user privacy.
 
-⸻
+---
 
 4. Data Minimization
 
@@ -67,7 +67,7 @@ Examples of public reputation information:
 * reputation confidence
 * selected reputation events
 
-⸻
+---
 
 5. User Ownership
 
@@ -82,7 +82,7 @@ TrustLayer provides infrastructure.
 
 It does not own user reputation.
 
-⸻
+---
 
 6. Consent
 
@@ -98,7 +98,7 @@ Users voluntarily upload evidence.
 
 Future integrations with marketplaces should require user authorization.
 
-⸻
+---
 
 7. Transparency
 
@@ -112,7 +112,7 @@ TrustLayer should explain:
 
 Algorithms affecting reputation confidence should remain explainable.
 
-⸻
+---
 
 8. Right to Privacy
 
@@ -136,7 +136,7 @@ The blockchain history remains immutable.
 
 Visibility controls apply to presentation, not historical integrity.
 
-⸻
+---
 
 9. Ethical Boundaries
 
@@ -150,7 +150,7 @@ TrustLayer should never become:
 
 These uses contradict the project’s mission.
 
-⸻
+---
 
 10. Domain Separation
 
@@ -170,7 +170,7 @@ Volunteer Reputation
 
 Success in one domain should not automatically affect another.
 
-⸻
+---
 
 11. No Universal Score
 
@@ -180,7 +180,7 @@ Instead, it presents domain-specific historical information.
 
 Users should evaluate different reputation contexts independently.
 
-⸻
+---
 
 12. Explainable Signals
 
@@ -198,7 +198,7 @@ Phone verified.
 
 The system should avoid unexplained AI decisions.
 
-⸻
+---
 
 13. Human Decision
 
@@ -214,7 +214,7 @@ TrustLayer should never automatically declare:
 
 Trust remains a human judgement.
 
-⸻
+---
 
 14. Evidence Protection
 
@@ -228,7 +228,7 @@ Evidence should:
 * store hashes on-chain
 * avoid unnecessary duplication
 
-⸻
+---
 
 15. Legal Considerations
 
@@ -243,7 +243,7 @@ Future implementations should consider:
 
 Legal compliance should support, not replace, ethical design.
 
-⸻
+---
 
 16. AI Ethics
 
@@ -257,7 +257,7 @@ Future AI features should:
 
 AI should enhance understanding, not replace responsibility.
 
-⸻
+---
 
 17. Mission Creep Prevention
 
@@ -273,7 +273,7 @@ Does this respect user privacy?
 
 If the answer is “No”, the feature should not be implemented.
 
-⸻
+---
 
 18. Future Governance
 
@@ -287,7 +287,7 @@ Privacy belongs to people.
 
 Trust belongs to people.
 
-⸻
+---
 
 19. Ethical Summary
 

@@ -4,7 +4,7 @@ Document: prompts/codex-system.md
 Version: 1.0
 Status: Draft
 
-⸻
+---
 
 1. Role
 
@@ -16,7 +16,7 @@ Your job is to implement the system according to the project documentation.
 
 You must not invent a different product direction.
 
-⸻
+---
 
 2. Project Mission
 
@@ -28,7 +28,7 @@ TrustLayer is a decentralized reputation infrastructure.
 
 Its first MVP focuses only on Trading Reputation.
 
-⸻
+---
 
 3. Required Reading Before Coding
 
@@ -45,7 +45,7 @@ Before writing or modifying code, read:
 
 If a task conflicts with these documents, stop and explain the conflict.
 
-⸻
+---
 
 4. Core Rules
 
@@ -63,7 +63,7 @@ Do not store private identity data publicly.
 
 Do not store raw private information on-chain.
 
-⸻
+---
 
 5. Engineering Principles
 
@@ -81,7 +81,7 @@ Avoid clever shortcuts.
 
 Avoid unnecessary dependencies.
 
-⸻
+---
 
 6. MVP Scope
 
@@ -104,7 +104,7 @@ MVP 0.1 does not include:
 * AI decision-making
 * native mobile apps
 
-⸻
+---
 
 7. Expected Stack
 
@@ -130,7 +130,7 @@ Storage:
 * metadata first
 * future R2 / IPFS evidence storage
 
-⸻
+---
 
 8. Development Workflow
 
@@ -144,7 +144,7 @@ For every task:
 6. Update documentation if needed.
 7. Avoid unrelated changes.
 
-⸻
+---
 
 9. Naming Rules
 
@@ -166,7 +166,7 @@ Avoid:
 * BadUser
 * SocialCreditScore
 
-⸻
+---
 
 10. Security Rules
 
@@ -186,7 +186,7 @@ Never allow:
 * confirming trade on behalf of another user
 * accessing private evidence without permission
 
-⸻
+---
 
 11. Output Rule
 
