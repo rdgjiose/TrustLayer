@@ -209,6 +209,88 @@ dd {
   line-height: 1.5;
 }
 
+.trade-page {
+  padding-bottom: 3rem;
+}
+
+.trade-header {
+  border-bottom: 1px solid var(--line);
+  padding: 1.5rem 0;
+}
+
+.trade-header h1 {
+  max-width: none;
+  font-size: clamp(2.5rem, 12vw, 5rem);
+}
+
+.trade-summary-grid,
+.participant-grid,
+.evidence-list {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1.5rem 0 0;
+}
+
+.participant-card,
+.evidence-list div,
+.notes-section {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.76);
+  padding: 1rem;
+}
+
+.participant-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.participant-card h3 {
+  margin: 0.45rem 0 0.25rem;
+  font-size: 1.35rem;
+}
+
+.participant-card span {
+  display: block;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.participant-card a {
+  display: inline-block;
+  margin-top: 1rem;
+  color: var(--accent);
+  font-weight: 800;
+  text-decoration-thickness: 0.12em;
+  text-underline-offset: 0.18em;
+}
+
+.trade-timeline li {
+  position: relative;
+}
+
+.evidence-list dd {
+  overflow-wrap: anywhere;
+}
+
+.notes-section {
+  margin-top: 1.5rem;
+}
+
+.notes-section h2 {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.35rem, 6vw, 2rem);
+}
+
+.notes-section p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
 @media (max-width: 640px) {
   .page-shell {
     align-items: start;
@@ -231,14 +313,19 @@ dd {
   }
 
   .profile-details,
-  .metric-grid {
+  .metric-grid,
+  .trade-summary-grid,
+  .participant-grid,
+  .evidence-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (min-width: 980px) {
   .profile-details,
-  .metric-grid {
+  .metric-grid,
+  .trade-summary-grid,
+  .evidence-list {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
