@@ -1,57 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-type ReputationProfileStats = {
-  completedTrades: number;
-  totalTrades: number;
-  confirmationRate: number;
-  disputeCount: number;
-  reputationConfidence: "Low" | "Medium" | "High";
-};
-
-type VerificationSignals = {
-  emailVerified: boolean;
-  phoneVerified: boolean;
-  marketplaceLinked: boolean;
-};
-
-type RecentActivityItem = {
-  label: string;
-  date: string;
-};
-
-type ReputationTimelineEvent = {
-  date: string;
-  eventType: string;
-  summary: string;
-};
-
-type ReputationProfileData = {
-  trustlayerId: string;
-  displayName: string;
-  memberSince: string;
-  reputationDomain: "trading";
-  publicProfileUrl: string;
-  stats: ReputationProfileStats;
-  verification: VerificationSignals;
-  recentActivity: RecentActivityItem[];
-  eventTimeline: ReputationTimelineEvent[];
-  note: string;
-};
-
-type ReputationProfileResponse =
-  | {
-      success: true;
-      data: ReputationProfileData;
-    }
-  | {
-      success: false;
-      error: {
-        code: string;
-        message: string;
-      };
-    };
+import type {
+  RecentActivityItem,
+  ReputationProfileData,
+  ReputationProfileResponse,
+  ReputationTimelineEvent,
+  VerificationSignals
+} from "../../../../shared/types/reputation-profile";
 
 type LabelValue = {
   label: string;

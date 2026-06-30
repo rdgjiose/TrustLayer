@@ -1,47 +1,7 @@
-type ReputationProfileStats = {
-  completedTrades: number;
-  totalTrades: number;
-  confirmationRate: number;
-  disputeCount: number;
-  reputationConfidence: "Low" | "Medium" | "High";
-};
+import type { ApiSuccessResponse } from "../../../shared/types/trade-record";
+import type { ReputationProfileData } from "../../../shared/types/reputation-profile";
 
-type VerificationSignals = {
-  emailVerified: boolean;
-  phoneVerified: boolean;
-  marketplaceLinked: boolean;
-};
-
-type RecentActivityItem = {
-  label: string;
-  date: string;
-};
-
-type ReputationTimelineEvent = {
-  date: string;
-  eventType: string;
-  summary: string;
-};
-
-type ReputationProfileData = {
-  trustlayerId: string;
-  displayName: string;
-  memberSince: string;
-  reputationDomain: "trading";
-  publicProfileUrl: string;
-  stats: ReputationProfileStats;
-  verification: VerificationSignals;
-  recentActivity: RecentActivityItem[];
-  eventTimeline: ReputationTimelineEvent[];
-  note: string;
-};
-
-type ReputationProfileResponse = {
-  success: true;
-  data: ReputationProfileData;
-};
-
-export const mockReputationProfile: ReputationProfileResponse = {
+export const mockReputationProfile: ApiSuccessResponse<ReputationProfileData> = {
   success: true,
   data: {
     trustlayerId: "tl-9f32a",
