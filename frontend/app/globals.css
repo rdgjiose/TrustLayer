@@ -269,7 +269,8 @@ dd {
 }
 
 .confirmation-summary,
-.confirmation-card {
+.confirmation-card,
+.invitation-grid div {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.76);
@@ -280,10 +281,20 @@ dd {
   font-size: clamp(1.4rem, 7vw, 2rem);
 }
 
+.confirmation-summary.unavailable dd {
+  font-size: clamp(1.2rem, 6vw, 1.65rem);
+}
+
 .confirmation-grid {
   display: grid;
   gap: 0.75rem;
   margin-top: 0.75rem;
+}
+
+.invitation-grid {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
 }
 
 .confirmation-card p {
@@ -590,6 +601,7 @@ dd {
   .trade-summary-grid,
   .participant-grid,
   .confirmation-grid,
+  .invitation-grid,
   .evidence-list,
   .wizard-steps,
   .preview-list {

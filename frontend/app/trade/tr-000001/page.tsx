@@ -2,11 +2,16 @@ import Link from "next/link";
 
 const tradeRecord = {
   tradeId: "TR-000001",
-  status: "Awaiting Seller Confirmation",
+  status: "Awaiting Seller Acceptance",
   tradeDate: "2026-06-21",
   marketplace: "Facebook Marketplace",
   category: "Mobile Phone",
   itemTitle: "iPhone 14",
+  createdBy: {
+    role: "Buyer",
+    displayName: "Jasper H.",
+    trustlayerId: "TL-9F32A"
+  },
   participants: [
     {
       role: "Buyer",
@@ -21,22 +26,13 @@ const tradeRecord = {
       profileHref: "/u/tl-4m7q2"
     }
   ],
-  confirmations: [
-    {
-      role: "Buyer",
-      displayName: "Jasper H.",
-      state: "Confirmed" as const,
-      confirmedAt: "2026-06-21 15:32",
-      confirmedAtDateTime: "2026-06-21T15:32:00"
-    },
-    {
-      role: "Seller",
-      displayName: "Mina R.",
-      state: "Pending" as const,
-      confirmedAt: null,
-      confirmedAtDateTime: null
-    }
-  ],
+  invitation: {
+    invitedRole: "Seller",
+    invitedParticipant: "Mina R.",
+    state: "Pending" as const,
+    link: "/trade/tr-000001",
+    createdBy: "Jasper H."
+  },
   timeline: [
     {
       dateTime: "2026-06-21T09:10:00",
@@ -45,28 +41,16 @@ const tradeRecord = {
       description: "Trade record opened from an external marketplace listing."
     },
     {
-      dateTime: "2026-06-21T09:22:00",
-      displayTime: "2026-06-21 09:22",
-      eventType: "Buyer Accepted",
-      description: "Buyer agreed to use TrustLayer for this trade record."
+      dateTime: "2026-06-21T09:12:00",
+      displayTime: "2026-06-21 09:12",
+      eventType: "Invitation Sent",
+      description: "Seller was invited to join this Trade Record."
     },
     {
-      dateTime: "2026-06-21T10:05:00",
-      displayTime: "2026-06-21 10:05",
-      eventType: "Meeting Scheduled",
-      description: "Participants recorded a meeting window without public address details."
-    },
-    {
-      dateTime: "2026-06-21T15:30:00",
-      displayTime: "2026-06-21 15:30",
-      eventType: "Exchange Noted",
-      description: "A participant recorded that the exchange was ready for confirmation."
-    },
-    {
-      dateTime: "2026-06-21T15:32:00",
-      displayTime: "2026-06-21 15:32",
-      eventType: "Buyer Confirmed",
-      description: "Buyer confirmation was recorded as a historical event."
+      dateTime: "2026-06-21T09:13:00",
+      displayTime: "2026-06-21 09:13",
+      eventType: "Waiting for Seller Acceptance",
+      description: "Confirmation is unavailable until the invited seller accepts."
     }
   ],
   evidence: [
@@ -100,14 +84,12 @@ type TimelineEvent = {
   description: string;
 };
 
-type ConfirmationState = "Pending" | "Confirmed" | "Declined";
-
-type Confirmation = {
-  role: string;
-  displayName: string;
-  state: ConfirmationState;
-  confirmedAt: string | null;
-  confirmedAtDateTime: string | null;
+type Invitation = {
+  invitedRole: string;
+  invitedParticipant: string;
+  state: "Pending" | "Accepted";
+  link: string;
+  createdBy: string;
 };
 
 function TradeSummary() {
@@ -168,48 +150,57 @@ function Participants() {
   );
 }
 
-function TradeConfirmation({
-  confirmations
+function TradeInvitation({
+  invitation
 }: {
-  confirmations: Confirmation[];
+  invitation: Invitation;
 }) {
-  const hasMutualConfirmation = confirmations.every(
-    (confirmation) => confirmation.state === "Confirmed"
+  return (
+    <section className="profile-section" aria-labelledby="trade-invitation">
+      <h2 id="trade-invitation">Trade Invitation</h2>
+      <dl className="invitation-grid">
+        <div>
+          <dt>Created by</dt>
+          <dd>{invitation.createdBy}</dd>
+        </div>
+        <div>
+          <dt>Invited Role</dt>
+          <dd>{invitation.invitedRole}</dd>
+        </div>
+        <div>
+          <dt>Invitation State</dt>
+          <dd>
+            <span className="confirmation-state pending">
+              {invitation.state}
+            </span>
+          </dd>
+        </div>
+        <div>
+          <dt>Invitation Link</dt>
+          <dd>{invitation.link}</dd>
+        </div>
+      </dl>
+      <p className="confirmation-note">
+        This Trade Record has been created, but the invited participant has not
+        accepted yet. TrustLayer records invitation and Participant Acceptance as
+        Historical Events in the Trade Lifecycle.
+      </p>
+    </section>
   );
-  const currentState = hasMutualConfirmation
-    ? "Mutual confirmation recorded"
-    : "Waiting for mutual confirmation";
+}
 
+function TradeConfirmationUnavailable() {
   return (
     <section className="profile-section" aria-labelledby="trade-confirmation">
       <h2 id="trade-confirmation">Trade Confirmation</h2>
-      <div className="confirmation-summary">
+      <div className="confirmation-summary unavailable">
         <dt>Current confirmation state</dt>
-        <dd>{currentState}</dd>
-      </div>
-      <div className="confirmation-grid">
-        {confirmations.map((confirmation) => (
-          <article className="confirmation-card" key={confirmation.role}>
-            <p>{confirmation.role}</p>
-            <h3>{confirmation.displayName}</h3>
-            <span className={`confirmation-state ${confirmation.state.toLowerCase()}`}>
-              {confirmation.state}
-            </span>
-            {confirmation.confirmedAt ? (
-              <time dateTime={confirmation.confirmedAtDateTime ?? undefined}>
-                {confirmation.confirmedAt}
-              </time>
-            ) : (
-              <span className="confirmation-time">No confirmation recorded</span>
-            )}
-          </article>
-        ))}
+        <dd>Unavailable until Participant Acceptance</dd>
       </div>
       <p className="confirmation-note">
-        TrustLayer records participant confirmations as historical events. A
-        completed Trade Record requires both participants to confirm. TrustLayer
-        records confirmations without judging whether the real-world trade
-        occurred exactly as described.
+        No trade confirmation can happen until both participants have joined
+        this Trade Record. TrustLayer records actions without judging either
+        participant.
       </p>
     </section>
   );
@@ -266,7 +257,8 @@ export default function TradeRecordPage() {
     <main className="profile-page trade-page">
       <TradeSummary />
       <Participants />
-      <TradeConfirmation confirmations={tradeRecord.confirmations} />
+      <TradeInvitation invitation={tradeRecord.invitation} />
+      <TradeConfirmationUnavailable />
       <TradeTimeline events={tradeRecord.timeline} />
       <AttachedEvidence />
       <TrustLayerNotes />
