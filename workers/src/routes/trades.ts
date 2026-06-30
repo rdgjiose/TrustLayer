@@ -1,10 +1,58 @@
 import { jsonResponse } from "../http/json-response";
-import { mockTradeRecord } from "../mock/trade-record";
+import { getTradeRecordByCode } from "../repositories/trades";
+import type { WorkerEnv } from "../env";
 
-export function handleTradeRoutes(request: Request, url: URL): Response | null {
-  if (request.method === "GET" && url.pathname === "/api/trades/tr-000001") {
-    return jsonResponse(mockTradeRecord);
+export async function handleTradeRoutes(
+  request: Request,
+  url: URL,
+  env: WorkerEnv
+): Promise<Response | null> {
+  if (request.method !== "GET") {
+    return null;
   }
 
-  return null;
+  const match = url.pathname.match(/^\/api\/trades\/([^/]+)$/);
+
+  if (!match) {
+    return null;
+  }
+
+  try {
+    const tradeRecord = await getTradeRecordByCode(env.DB, match[1] ?? "");
+
+    if (!tradeRecord) {
+      return jsonResponse(
+        {
+          success: false,
+          error: {
+            code: "NOT_FOUND",
+            message: "Trade Record not found."
+          }
+        },
+        {
+          status: 404
+        }
+      );
+    }
+
+    return jsonResponse({
+      success: true,
+      data: tradeRecord
+    });
+  } catch (error) {
+    console.error("Unable to load Trade Record.", error);
+
+    return jsonResponse(
+      {
+        success: false,
+        error: {
+          code: "INTERNAL_ERROR",
+          message: "Unable to load Trade Record."
+        }
+      },
+      {
+        status: 500
+      }
+    );
+  }
 }
