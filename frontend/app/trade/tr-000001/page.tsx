@@ -2,7 +2,7 @@ import Link from "next/link";
 
 const tradeRecord = {
   tradeId: "TR-000001",
-  status: "Completed",
+  status: "Awaiting Seller Confirmation",
   tradeDate: "2026-06-21",
   marketplace: "Facebook Marketplace",
   category: "Mobile Phone",
@@ -19,6 +19,22 @@ const tradeRecord = {
       displayName: "Mina R.",
       trustlayerId: "TL-4M7Q2",
       profileHref: "/u/tl-4m7q2"
+    }
+  ],
+  confirmations: [
+    {
+      role: "Buyer",
+      displayName: "Jasper H.",
+      state: "Confirmed" as const,
+      confirmedAt: "2026-06-21 15:32",
+      confirmedAtDateTime: "2026-06-21T15:32:00"
+    },
+    {
+      role: "Seller",
+      displayName: "Mina R.",
+      state: "Pending" as const,
+      confirmedAt: null,
+      confirmedAtDateTime: null
     }
   ],
   timeline: [
@@ -43,26 +59,14 @@ const tradeRecord = {
     {
       dateTime: "2026-06-21T15:30:00",
       displayTime: "2026-06-21 15:30",
-      eventType: "Trade Completed",
-      description: "The trade was marked complete after the exchange."
+      eventType: "Exchange Noted",
+      description: "A participant recorded that the exchange was ready for confirmation."
     },
     {
       dateTime: "2026-06-21T15:32:00",
       displayTime: "2026-06-21 15:32",
       eventType: "Buyer Confirmed",
       description: "Buyer confirmation was recorded as a historical event."
-    },
-    {
-      dateTime: "2026-06-21T15:34:00",
-      displayTime: "2026-06-21 15:34",
-      eventType: "Seller Confirmed",
-      description: "Seller confirmation was recorded as a historical event."
-    },
-    {
-      dateTime: "2026-06-21T15:36:00",
-      displayTime: "2026-06-21 15:36",
-      eventType: "Trade Recorded",
-      description: "The completed trade became part of the public trading history."
     }
   ],
   evidence: [
@@ -94,6 +98,16 @@ type TimelineEvent = {
   displayTime: string;
   eventType: string;
   description: string;
+};
+
+type ConfirmationState = "Pending" | "Confirmed" | "Declined";
+
+type Confirmation = {
+  role: string;
+  displayName: string;
+  state: ConfirmationState;
+  confirmedAt: string | null;
+  confirmedAtDateTime: string | null;
 };
 
 function TradeSummary() {
@@ -154,6 +168,53 @@ function Participants() {
   );
 }
 
+function TradeConfirmation({
+  confirmations
+}: {
+  confirmations: Confirmation[];
+}) {
+  const hasMutualConfirmation = confirmations.every(
+    (confirmation) => confirmation.state === "Confirmed"
+  );
+  const currentState = hasMutualConfirmation
+    ? "Mutual confirmation recorded"
+    : "Waiting for mutual confirmation";
+
+  return (
+    <section className="profile-section" aria-labelledby="trade-confirmation">
+      <h2 id="trade-confirmation">Trade Confirmation</h2>
+      <div className="confirmation-summary">
+        <dt>Current confirmation state</dt>
+        <dd>{currentState}</dd>
+      </div>
+      <div className="confirmation-grid">
+        {confirmations.map((confirmation) => (
+          <article className="confirmation-card" key={confirmation.role}>
+            <p>{confirmation.role}</p>
+            <h3>{confirmation.displayName}</h3>
+            <span className={`confirmation-state ${confirmation.state.toLowerCase()}`}>
+              {confirmation.state}
+            </span>
+            {confirmation.confirmedAt ? (
+              <time dateTime={confirmation.confirmedAtDateTime ?? undefined}>
+                {confirmation.confirmedAt}
+              </time>
+            ) : (
+              <span className="confirmation-time">No confirmation recorded</span>
+            )}
+          </article>
+        ))}
+      </div>
+      <p className="confirmation-note">
+        TrustLayer records participant confirmations as historical events. A
+        completed Trade Record requires both participants to confirm. TrustLayer
+        records confirmations without judging whether the real-world trade
+        occurred exactly as described.
+      </p>
+    </section>
+  );
+}
+
 function TradeTimeline({ events }: { events: TimelineEvent[] }) {
   return (
     <section className="profile-section" aria-labelledby="trade-timeline">
@@ -205,6 +266,7 @@ export default function TradeRecordPage() {
     <main className="profile-page trade-page">
       <TradeSummary />
       <Participants />
+      <TradeConfirmation confirmations={tradeRecord.confirmations} />
       <TradeTimeline events={tradeRecord.timeline} />
       <AttachedEvidence />
       <TrustLayerNotes />

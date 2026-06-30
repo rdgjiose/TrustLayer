@@ -1,0 +1,1 @@
+TrustLayer ultimately records agreements between participants, not merely trades. A trade is one type of agreement; future agreements may include rentals, services, commitments, and other mutually acknowledged interactions.

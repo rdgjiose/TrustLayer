@@ -268,6 +268,80 @@ dd {
   text-underline-offset: 0.18em;
 }
 
+.confirmation-summary,
+.confirmation-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.76);
+  padding: 1rem;
+}
+
+.confirmation-summary dd {
+  font-size: clamp(1.4rem, 7vw, 2rem);
+}
+
+.confirmation-grid {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.confirmation-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.confirmation-card h3 {
+  margin: 0.45rem 0 0.75rem;
+  font-size: 1.25rem;
+}
+
+.confirmation-state,
+.confirmation-time,
+.confirmation-card time {
+  display: block;
+}
+
+.confirmation-state {
+  width: fit-content;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  padding: 0.35rem 0.65rem;
+}
+
+.confirmation-state.confirmed {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.confirmation-state.pending {
+  background: #efe8d8;
+  color: var(--muted);
+}
+
+.confirmation-state.declined {
+  background: #f3ded8;
+  color: #8a3527;
+}
+
+.confirmation-time,
+.confirmation-card time {
+  margin-top: 0.75rem;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.confirmation-note {
+  max-width: 48rem;
+  margin: 1rem 0 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
 .trade-timeline li {
   position: relative;
 }
@@ -289,6 +363,205 @@ dd {
   margin: 0;
   color: var(--muted);
   line-height: 1.6;
+}
+
+.create-trade-page {
+  padding-bottom: 3rem;
+}
+
+.wizard-intro {
+  max-width: 44rem;
+  margin: 1rem 0 0;
+  color: var(--muted);
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.prefill-notice {
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: var(--accent-soft);
+  margin-top: 1rem;
+  padding: 1rem;
+}
+
+.prefill-notice h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+}
+
+.prefill-notice p {
+  margin: 0.5rem 0 0;
+  color: var(--foreground);
+  line-height: 1.55;
+}
+
+.wizard-steps {
+  display: grid;
+  gap: 0.5rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wizard-steps li {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.62);
+  color: var(--muted);
+  font-weight: 800;
+  padding: 0.75rem;
+}
+
+.wizard-steps li.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--foreground);
+}
+
+.wizard-steps span {
+  display: grid;
+  width: 1.75rem;
+  height: 1.75rem;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--accent);
+  font-size: 0.85rem;
+}
+
+.wizard-panel {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.76);
+  margin-top: 1rem;
+  padding: 1rem;
+}
+
+.wizard-panel h2 {
+  margin: 0 0 1rem;
+  font-size: clamp(1.35rem, 6vw, 2rem);
+}
+
+.wizard-panel label,
+.role-options legend {
+  display: block;
+  margin: 1rem 0 0.45rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.wizard-panel input[type="text"],
+.wizard-panel input[type="url"],
+.wizard-panel textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--foreground);
+  font: inherit;
+  padding: 0.85rem;
+}
+
+.wizard-panel textarea {
+  resize: vertical;
+}
+
+.wizard-panel p {
+  margin: 1rem 0 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.role-options {
+  display: grid;
+  gap: 0.75rem;
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.role-options label {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--foreground);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 1rem;
+  text-transform: none;
+}
+
+.role-options input {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--accent);
+}
+
+.preview-list {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.preview-list div,
+.generated-link {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 1rem;
+}
+
+.generated-link {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.generated-link span {
+  color: var(--foreground);
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.generated-link a {
+  color: var(--accent);
+  font-weight: 800;
+  text-decoration-thickness: 0.12em;
+  text-underline-offset: 0.18em;
+}
+
+.wizard-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.wizard-actions button {
+  min-height: 2.75rem;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--surface);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  padding: 0.75rem 1rem;
+}
+
+.wizard-actions button:disabled {
+  border-color: var(--line);
+  background: var(--line);
+  color: var(--muted);
+  cursor: not-allowed;
 }
 
 @media (max-width: 640px) {
@@ -316,8 +589,15 @@ dd {
   .metric-grid,
   .trade-summary-grid,
   .participant-grid,
-  .evidence-list {
+  .confirmation-grid,
+  .evidence-list,
+  .wizard-steps,
+  .preview-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .wizard-panel {
+    padding: 1.5rem;
   }
 }
 
