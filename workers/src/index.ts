@@ -10,7 +10,7 @@ export default {
     const response =
       handleHealthRoute(request, url) ??
       (await handleTradeRoutes(request, url, env)) ??
-      handleProfileRoutes(request, url);
+      (await handleProfileRoutes(request, url, env));
 
     if (response) {
       return response;
