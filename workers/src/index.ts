@@ -1,43 +1,12 @@
+import type {
+  ApiSuccessResponse,
+  TradeLifecyclePayload,
+  TradeLifecycleStateId,
+  TradeRecordData
+} from "../../shared/types/trade-record";
+
 const jsonHeaders = {
   "content-type": "application/json; charset=utf-8"
-};
-
-type TradeLifecycleStateId =
-  | "awaiting_seller_acceptance"
-  | "accepted"
-  | "awaiting_seller_confirmation"
-  | "mutually_confirmed"
-  | "recorded"
-  | "cancelled";
-
-type TimelineEvent = {
-  dateTime: string;
-  displayTime: string;
-  eventType: string;
-  description: string;
-};
-
-type TradeLifecycle = {
-  tradeStatus: string;
-  invitation: {
-    invitedRole: string;
-    invitedParticipant: string;
-    state: "Pending" | "Accepted" | "Closed";
-    link: string;
-    createdBy: string;
-  };
-  confirmation: {
-    currentState: string;
-    participants: {
-      role: "Buyer" | "Seller";
-      state: "Pending" | "Confirmed" | "Not Applicable";
-      timestamp?: string;
-    }[];
-    note: string;
-    isUnavailable?: boolean;
-  };
-  timeline: TimelineEvent[];
-  note: string;
 };
 
 const availableTradeLifecycleStates: TradeLifecycleStateId[] = [
@@ -49,7 +18,7 @@ const availableTradeLifecycleStates: TradeLifecycleStateId[] = [
   "cancelled"
 ];
 
-const mockTradeLifecycle: TradeLifecycle = {
+const mockTradeLifecycle: TradeLifecyclePayload = {
   tradeStatus: "Awaiting Seller Acceptance",
   invitation: {
     invitedRole: "Seller",
@@ -87,7 +56,7 @@ const mockTradeLifecycle: TradeLifecycle = {
   note: "TrustLayer records historical events. It does not judge participants."
 };
 
-const mockTradeRecord = {
+const mockTradeRecord: ApiSuccessResponse<TradeRecordData> = {
   success: true,
   data: {
     tradeId: "trd_000001",

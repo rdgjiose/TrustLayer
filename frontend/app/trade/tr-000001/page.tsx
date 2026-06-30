@@ -4,47 +4,16 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   tradeLifecycleStates,
-  type Confirmation,
-  type Invitation,
-  type TimelineEvent,
-  type TradeLifecycleState,
-  type TradeLifecycleStateId
+  type TradeLifecycleState
 } from "../../../lib/trade-lifecycle";
-
-type TradeRecordApiData = {
-  tradeId: string;
-  tradeCode: string;
-  item: {
-    title: string;
-    summary: string;
-    marketplace: string;
-    source: string;
-  };
-  participants: {
-    buyer: {
-      name: string;
-      trustlayerId: string;
-    };
-    seller: {
-      name: string;
-      trustlayerId: string;
-    };
-  };
-  currentState: TradeLifecycleStateId;
-  availableStates: TradeLifecycleStateId[];
-  lifecycle: {
-    tradeStatus: string;
-    invitation: Invitation;
-    confirmation: Confirmation;
-    timeline: TimelineEvent[];
-    note: string;
-  };
-};
-
-type TradeRecordApiResponse = {
-  success: boolean;
-  data?: TradeRecordApiData;
-};
+import type {
+  TradeConfirmationPayload,
+  TradeInvitationPayload,
+  TradeRecordData,
+  TradeRecordResponse,
+  TradeTimelineEvent,
+  TradeLifecycleStateId
+} from "../../../../shared/types/trade-record";
 
 const evidenceReferences = [
   {
@@ -70,7 +39,7 @@ const evidenceReferences = [
 ];
 
 function createApiLifecycleState(
-  tradeRecord: TradeRecordApiData
+  tradeRecord: TradeRecordData
 ): TradeLifecycleState {
   return {
     id: tradeRecord.currentState,
@@ -134,7 +103,7 @@ function TradeSummary({
   tradeRecord,
   status
 }: {
-  tradeRecord: TradeRecordApiData;
+  tradeRecord: TradeRecordData;
   status: string;
 }) {
   const summaryItems = [
@@ -176,7 +145,7 @@ function TradeSummary({
 function Participants({
   participants
 }: {
-  participants: TradeRecordApiData["participants"];
+  participants: TradeRecordData["participants"];
 }) {
   const participantList = [
     {
@@ -213,7 +182,7 @@ function Participants({
 function TradeInvitation({
   invitation
 }: {
-  invitation: Invitation;
+  invitation: TradeInvitationPayload;
 }) {
   return (
     <section className="profile-section" aria-labelledby="trade-invitation">
@@ -249,7 +218,11 @@ function TradeInvitation({
   );
 }
 
-function TradeConfirmation({ confirmation }: { confirmation: Confirmation }) {
+function TradeConfirmation({
+  confirmation
+}: {
+  confirmation: TradeConfirmationPayload;
+}) {
   return (
     <section className="profile-section" aria-labelledby="trade-confirmation">
       <h2 id="trade-confirmation">Trade Confirmation</h2>
@@ -292,7 +265,7 @@ function TradeConfirmation({ confirmation }: { confirmation: Confirmation }) {
   );
 }
 
-function TradeTimeline({ events }: { events: TimelineEvent[] }) {
+function TradeTimeline({ events }: { events: TradeTimelineEvent[] }) {
   return (
     <section className="profile-section" aria-labelledby="trade-timeline">
       <h2 id="trade-timeline">Timeline</h2>
@@ -339,7 +312,7 @@ function TrustLayerNotes({ note }: { note: string }) {
 }
 
 export default function TradeRecordPage() {
-  const [tradeRecord, setTradeRecord] = useState<TradeRecordApiData | null>(
+  const [tradeRecord, setTradeRecord] = useState<TradeRecordData | null>(
     null
   );
   const [selectedStateId, setSelectedStateId] =
@@ -360,7 +333,7 @@ export default function TradeRecordPage() {
           throw new Error("Unable to load Trade Record.");
         }
 
-        const result = (await response.json()) as TradeRecordApiResponse;
+        const result = (await response.json()) as TradeRecordResponse;
 
         if (!result.success || !result.data) {
           throw new Error("Unable to load Trade Record.");
