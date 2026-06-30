@@ -213,6 +213,53 @@ dd {
   padding-bottom: 3rem;
 }
 
+.prototype-switcher {
+  display: grid;
+  gap: 1rem;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: var(--accent-soft);
+  margin: 1rem 0 0;
+  padding: 1rem;
+}
+
+.prototype-switcher h2 {
+  margin: 0;
+  font-size: clamp(1.35rem, 6vw, 2rem);
+}
+
+.prototype-switcher p:not(.eyebrow) {
+  max-width: 48rem;
+  margin: 0.75rem 0 0;
+  color: var(--foreground);
+  line-height: 1.6;
+}
+
+.state-switcher-options {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.state-switcher-options button {
+  min-height: 2.75rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--foreground);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  padding: 0.75rem 1rem;
+  text-align: left;
+}
+
+.state-switcher-options button.active,
+.state-switcher-options button[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--surface);
+}
+
 .trade-header {
   border-bottom: 1px solid var(--line);
   padding: 1.5rem 0;
@@ -331,6 +378,12 @@ dd {
 
 .confirmation-state.pending {
   background: #efe8d8;
+  color: var(--muted);
+}
+
+.confirmation-state.closed,
+.confirmation-state.not-applicable {
+  background: #ede7dc;
   color: var(--muted);
 }
 
@@ -598,6 +651,7 @@ dd {
 
   .profile-details,
   .metric-grid,
+  .state-switcher-options,
   .trade-summary-grid,
   .participant-grid,
   .confirmation-grid,
