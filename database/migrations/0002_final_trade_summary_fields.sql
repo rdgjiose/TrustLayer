@@ -1,0 +1,9 @@
+ALTER TABLE trades ADD COLUMN listing_price TEXT;
+ALTER TABLE trades ADD COLUMN final_agreed_price TEXT;
+ALTER TABLE trades ADD COLUMN currency TEXT;
+ALTER TABLE trades ADD COLUMN trade_date TEXT;
+ALTER TABLE trades ADD COLUMN meeting_location_note TEXT;
+ALTER TABLE trades ADD COLUMN payment_method TEXT;
+ALTER TABLE trades ADD COLUMN included_notes TEXT;
+ALTER TABLE trades ADD COLUMN final_summary_status TEXT;
+ALTER TABLE trades ADD COLUMN final_summary_updated_at TEXT;

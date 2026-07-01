@@ -151,6 +151,15 @@ CREATE TABLE trades (
     item_summary TEXT,
     terms_hash TEXT,
     status TEXT NOT NULL,
+    listing_price TEXT,
+    final_agreed_price TEXT,
+    currency TEXT,
+    trade_date TEXT,
+    meeting_location_note TEXT,
+    payment_method TEXT,
+    included_notes TEXT,
+    final_summary_status TEXT,
+    final_summary_updated_at TEXT,
     observation_window_ends_at TEXT,
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL,
@@ -173,6 +182,27 @@ archived
 cancelled
 expired
 disputed
+
+Final Trade Summary fields:
+
+* listing_price stores the price observed from the marketplace listing. It is reference evidence only and may differ from the final agreed price.
+* final_agreed_price stores the price both participants may confirm in a future Final Trade Summary flow.
+* currency stores the currency code, such as NZD.
+* trade_date stores the expected or completed trade date or timestamp.
+* meeting_location_note stores a broad location note only, such as a shopping mall, suburb, city, or public meeting place.
+* payment_method stores optional text such as cash, bank transfer, or unknown. TrustLayer does not process payment.
+* included_notes stores optional summary notes such as accessories or agreed conditions.
+* final_summary_status stores the future summary workflow state, such as draft, proposed, or confirmed.
+* final_summary_updated_at stores the timestamp of the latest Final Trade Summary update.
+
+All Final Trade Summary fields are nullable so existing MVP trades remain valid.
+
+Privacy notes:
+
+* meeting_location_note should not store exact home addresses.
+* payment_method should not store account numbers, card details, or private payment credentials.
+* included_notes should not store private contact details or unnecessary personal information.
+* These fields prepare future summary confirmation only. They do not create escrow, payment processing, legal contract generation, or automated judgement.
 
 ---
 
