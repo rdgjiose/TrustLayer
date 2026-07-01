@@ -6,14 +6,35 @@ import { Suspense, type FormEvent, useMemo, useState } from "react";
 
 type UserRole = "buyer" | "seller";
 
-const mockTradeLink = "/trade/tr-000001";
+type CreateTradeSuccessData = {
+  tradeCode: string;
+  publicUrl: string;
+  state: string;
+  message: string;
+};
+
+type CreateTradeResponse =
+  | {
+      success: true;
+      data: CreateTradeSuccessData;
+    }
+  | {
+      success: false;
+      error: {
+        code: string;
+        message: string;
+      };
+    };
+
+const creatorTrustlayerId = "tl-9f32a";
+const invitedTrustlayerId = "tl-4m7q2";
 
 const steps = [
   "Marketplace link",
   "Item details",
   "Your role",
   "Preview",
-  "Mock link"
+  "Trade link"
 ];
 
 function getInitialRole(role: string | null): UserRole {
@@ -36,7 +57,10 @@ function CreateTradeWizard() {
   const [itemTitle, setItemTitle] = useState(titleParam ?? "");
   const [itemSummary, setItemSummary] = useState("");
   const [userRole, setUserRole] = useState<UserRole>(getInitialRole(roleParam));
-  const [generatedLink, setGeneratedLink] = useState("");
+  const [createdTrade, setCreatedTrade] =
+    useState<CreateTradeSuccessData | null>(null);
+  const [submitError, setSubmitError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const previewItems = useMemo(
     () => [
@@ -76,10 +100,49 @@ function CreateTradeWizard() {
     setCurrentStep((step) => Math.max(step - 1, 0));
   }
 
-  function handleGenerate(event: FormEvent<HTMLFormElement>) {
+  async function handleCreateTrade(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setGeneratedLink(mockTradeLink);
-    setCurrentStep(4);
+    setSubmitError("");
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch("/api/trades", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          creatorTrustlayerId,
+          invitedTrustlayerId,
+          creatorRole: userRole,
+          marketplace: marketplaceSource,
+          listingUrl: marketplaceLink,
+          itemTitle,
+          itemSummary
+        })
+      });
+
+      const result = (await response.json()) as CreateTradeResponse;
+
+      if (!response.ok || !result.success) {
+        throw new Error(
+          result.success
+            ? "Unable to create Trade Record."
+            : result.error.message
+        );
+      }
+
+      setCreatedTrade(result.data);
+      setCurrentStep(4);
+    } catch (error) {
+      setSubmitError(
+        error instanceof Error
+          ? error.message
+          : "Unable to create Trade Record."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -119,7 +182,7 @@ function CreateTradeWizard() {
         ))}
       </ol>
 
-      <form className="wizard-panel" onSubmit={handleGenerate}>
+      <form className="wizard-panel" onSubmit={handleCreateTrade}>
         {currentStep === 0 && (
           <section aria-labelledby="marketplace-link-heading">
             <h2 id="marketplace-link-heading">External Marketplace Link</h2>
@@ -207,19 +270,39 @@ function CreateTradeWizard() {
               ))}
             </dl>
             <p>
-              This preview starts a mock Trade Created record. Future actions
-              create the history.
+              This preview starts a Trade Created record. Future actions create
+              the history.
             </p>
+            {submitError && (
+              <p className="confirmation-note" role="alert">
+                {submitError}
+              </p>
+            )}
           </section>
         )}
 
         {currentStep === 4 && (
           <section aria-labelledby="generated-link-heading">
-            <h2 id="generated-link-heading">Mock TrustLayer Trade Link</h2>
+            <h2 id="generated-link-heading">Trade Record created.</h2>
             <div className="generated-link">
-              <span>{generatedLink || mockTradeLink}</span>
-              <Link href={generatedLink || mockTradeLink}>Open Trade Record</Link>
+              <span>{createdTrade?.tradeCode ?? "Trade Record created"}</span>
+              <span>{createdTrade?.publicUrl ?? ""}</span>
+              {createdTrade ? (
+                <Link href={createdTrade.publicUrl}>View Trade Record</Link>
+              ) : null}
             </div>
+            {createdTrade ? (
+              <dl className="preview-list">
+                <div>
+                  <dt>State</dt>
+                  <dd>{createdTrade.state}</dd>
+                </div>
+                <div>
+                  <dt>Message</dt>
+                  <dd>{createdTrade.message}</dd>
+                </div>
+              </dl>
+            ) : null}
             <p>
               Users create reputation history through recorded actions.
               TrustLayer does not process payment or decide trust.
@@ -236,11 +319,16 @@ function CreateTradeWizard() {
               Next
             </button>
           )}
-          {currentStep === 3 && <button type="submit">Generate Mock Link</button>}
+          {currentStep === 3 && (
+            <button disabled={isSubmitting} type="submit">
+              {isSubmitting ? "Creating Trade Record..." : "Create Trade Record"}
+            </button>
+          )}
           {currentStep === 4 && (
             <button
               onClick={() => {
-                setGeneratedLink("");
+                setCreatedTrade(null);
+                setSubmitError("");
                 setCurrentStep(0);
               }}
               type="button"
