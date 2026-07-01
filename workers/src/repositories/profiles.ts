@@ -1,6 +1,7 @@
 import type {
   RecentActivityItem,
   ReputationProfileData,
+  ReputationStats,
   ReputationTimelineEvent,
   VerificationSignals
 } from "../../../shared/types/reputation-profile";
@@ -12,11 +13,6 @@ type ProfileRow = {
   trustlayer_id: string;
   display_name: string;
   created_at: string;
-  completed_trades: number | null;
-  total_trades: number | null;
-  disputed_trades: number | null;
-  confirmation_rate: number | null;
-  reputation_confidence: string | null;
 };
 
 type IdentitySignalRow = {
@@ -26,18 +22,15 @@ type IdentitySignalRow = {
 
 type ReputationEventRow = {
   event_type: string;
-  event_payload_json: string | null;
   created_at: string;
 };
 
-type EventPayload = {
-  summary?: string;
+type RecordedTradeEventRow = {
+  created_at: string;
 };
 
-const eventTimelineLabels: Record<string, string> = {
-  issue_resolved: "Dispute Resolved",
-  trade_cancelled: "Trade Cancelled",
-  trade_completed: "Trade Completed"
+type CountRow = {
+  count: number;
 };
 
 const recentActivityLabels: Record<string, string> = {
@@ -57,15 +50,8 @@ export async function getReputationProfileByTrustLayerId(
           users.id AS user_id,
           users.trustlayer_id,
           users.display_name,
-          users.created_at,
-          reputation_stats.completed_trades,
-          reputation_stats.total_trades,
-          reputation_stats.disputed_trades,
-          reputation_stats.confirmation_rate,
-          reputation_stats.reputation_confidence
+          users.created_at
         FROM users
-        LEFT JOIN reputation_stats
-          ON reputation_stats.user_id = users.id
         WHERE users.trustlayer_id = ?
         LIMIT 1
       `
@@ -77,10 +63,14 @@ export async function getReputationProfileByTrustLayerId(
     return null;
   }
 
-  const [identitySignals, events] = await Promise.all([
-    getIdentitySignals(db, profile.user_id),
-    getProfileEvents(db, profile.user_id)
-  ]);
+  const [identitySignals, recentActivityEvents, recordedTradeEvents] =
+    await Promise.all([
+      getIdentitySignals(db, profile.user_id),
+      getProfileEvents(db, profile.user_id),
+      getRecordedTradeEvents(db, profile.user_id)
+    ]);
+
+  const stats = await getReputationStats(db, profile.user_id);
 
   return {
     trustlayerId: profile.trustlayer_id,
@@ -88,20 +78,103 @@ export async function getReputationProfileByTrustLayerId(
     memberSince: formatDate(profile.created_at),
     reputationDomain: "trading",
     publicProfileUrl: `/u/${profile.trustlayer_id}`,
-    stats: {
-      completedTrades: profile.completed_trades ?? 0,
-      totalTrades: profile.total_trades ?? 0,
-      confirmationRate: profile.confirmation_rate ?? 0,
-      disputeCount: profile.disputed_trades ?? 0,
-      reputationConfidence: mapReputationConfidence(
-        profile.reputation_confidence
-      )
-    },
+    stats,
     verification: mapVerificationSignals(identitySignals),
-    recentActivity: events.map(mapRecentActivity),
-    eventTimeline: events.map(mapTimelineEvent),
+    recentActivity: recentActivityEvents.map(mapRecentActivity),
+    eventTimeline: recordedTradeEvents.map(mapRecordedTradeTimelineEvent),
     note: "TrustLayer presents historical reputation events. It does not make trust decisions for users."
   };
+}
+
+async function getReputationStats(
+  db: D1Database,
+  userId: string
+): Promise<ReputationStats> {
+  const [completedTrades, totalTrades, disputeCount] = await Promise.all([
+    countCompletedTrades(db, userId),
+    countTotalTrades(db, userId),
+    countDisputeEvents(db, userId)
+  ]);
+  const confirmationRate =
+    totalTrades === 0 ? 0 : Number((completedTrades / totalTrades).toFixed(2));
+
+  return {
+    completedTrades,
+    totalTrades,
+    confirmationRate,
+    disputeCount,
+    reputationConfidence: calculateReputationConfidence(completedTrades)
+  };
+}
+
+async function countCompletedTrades(
+  db: D1Database,
+  userId: string
+): Promise<number> {
+  return countRows(
+    db
+      .prepare(
+        `
+          SELECT COUNT(*) AS count
+          FROM trades
+          WHERE status = ?
+            AND (
+              buyer_user_id = ?
+              OR seller_user_id = ?
+            )
+        `
+      )
+      .bind("recorded", userId, userId)
+  );
+}
+
+async function countTotalTrades(
+  db: D1Database,
+  userId: string
+): Promise<number> {
+  return countRows(
+    db
+      .prepare(
+        `
+          SELECT COUNT(*) AS count
+          FROM trades
+          WHERE buyer_user_id = ?
+            OR seller_user_id = ?
+        `
+      )
+      .bind(userId, userId)
+  );
+}
+
+async function countDisputeEvents(
+  db: D1Database,
+  userId: string
+): Promise<number> {
+  return countRows(
+    db
+      .prepare(
+        `
+          SELECT COUNT(DISTINCT reputation_events.id) AS count
+          FROM reputation_events
+          LEFT JOIN trades
+            ON trades.id = reputation_events.trade_id
+          WHERE reputation_events.event_type = ?
+            AND (
+              reputation_events.actor_user_id = ?
+              OR reputation_events.target_user_id = ?
+              OR trades.buyer_user_id = ?
+              OR trades.seller_user_id = ?
+            )
+        `
+      )
+      .bind("dispute_resolved", userId, userId, userId, userId)
+  );
+}
+
+async function countRows(statement: D1PreparedStatement): Promise<number> {
+  const row = await statement.first<CountRow>();
+
+  return row?.count ?? 0;
 }
 
 async function getIdentitySignals(
@@ -133,7 +206,6 @@ async function getProfileEvents(
       `
         SELECT
           event_type,
-          event_payload_json,
           created_at
         FROM reputation_events
         WHERE target_user_id = ?
@@ -144,6 +216,33 @@ async function getProfileEvents(
     )
     .bind(userId)
     .all<ReputationEventRow>();
+
+  return result.results ?? [];
+}
+
+async function getRecordedTradeEvents(
+  db: D1Database,
+  userId: string
+): Promise<RecordedTradeEventRow[]> {
+  const result = await db
+    .prepare(
+      `
+        SELECT
+          reputation_events.created_at
+        FROM reputation_events
+        INNER JOIN trades
+          ON trades.id = reputation_events.trade_id
+        WHERE reputation_events.event_type = ?
+          AND (
+            trades.buyer_user_id = ?
+            OR trades.seller_user_id = ?
+          )
+        ORDER BY reputation_events.created_at DESC
+        LIMIT 10
+      `
+    )
+    .bind("trade_recorded", userId, userId)
+    .all<RecordedTradeEventRow>();
 
   return result.results ?? [];
 }
@@ -175,39 +274,25 @@ function mapRecentActivity(event: ReputationEventRow): RecentActivityItem {
   };
 }
 
-function mapTimelineEvent(event: ReputationEventRow): ReputationTimelineEvent {
-  const payload = parseEventPayload(event.event_payload_json);
-
+function mapRecordedTradeTimelineEvent(
+  event: RecordedTradeEventRow
+): ReputationTimelineEvent {
   return {
     date: formatDate(event.created_at),
-    eventType: eventTimelineLabels[event.event_type] ?? titleCase(event.event_type),
-    summary: payload.summary ?? "Reputation history event recorded by TrustLayer."
+    eventType: "Trade Recorded",
+    summary: "Trade completed with mutual confirmation."
   };
 }
 
-function parseEventPayload(value: string | null): EventPayload {
-  if (!value) {
-    return {};
-  }
-
-  try {
-    const parsed = JSON.parse(value) as unknown;
-
-    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-      return {};
-    }
-
-    return parsed as EventPayload;
-  } catch {
-    return {};
-  }
-}
-
-function mapReputationConfidence(
-  value: string | null
+function calculateReputationConfidence(
+  completedTrades: number
 ): ReputationConfidence {
-  if (value === "Low" || value === "Medium" || value === "High") {
-    return value;
+  if (completedTrades >= 50) {
+    return "High";
+  }
+
+  if (completedTrades >= 10) {
+    return "Medium";
   }
 
   return "Low";
