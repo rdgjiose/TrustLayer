@@ -33,9 +33,32 @@ type TradeEventRow = {
   created_at: string;
 };
 
+type TradeUserRow = {
+  id: string;
+  display_name: string;
+  trustlayer_id: string;
+};
+
 type EventPayload = {
   description?: string;
   summary?: string;
+};
+
+export type CreateTradeInput = {
+  creatorTrustlayerId: string;
+  invitedTrustlayerId: string;
+  creatorRole: "buyer" | "seller";
+  marketplace: string | null;
+  listingUrl: string | null;
+  itemTitle: string;
+  itemSummary: string | null;
+};
+
+export type CreateTradeResult = {
+  tradeCode: string;
+  publicUrl: string;
+  state: string;
+  message: string;
 };
 
 const eventTypeLabels: Record<string, string> = {
@@ -125,6 +148,213 @@ export async function getTradeRecordByCode(
   };
 }
 
+export async function createTradeRecord(
+  db: D1Database,
+  input: CreateTradeInput
+): Promise<CreateTradeResult | null> {
+  const [creator, invited] = await Promise.all([
+    getUserByTrustLayerId(db, input.creatorTrustlayerId),
+    getUserByTrustLayerId(db, input.invitedTrustlayerId)
+  ]);
+
+  if (!creator || !invited) {
+    return null;
+  }
+
+  const now = new Date().toISOString();
+  const tradeCode = await generateTradeCode(db);
+  const tradeId = `trd_${tradeCode.replace("tr-", "")}`;
+  const marketplaceReferenceId = input.listingUrl
+    ? `mkt_${tradeCode.replace("tr-", "")}`
+    : null;
+  const tradeCreatedEventId = `evt_${tradeCode.replace("tr-", "")}_created`;
+  const invitationEventId = `evt_${tradeCode.replace("tr-", "")}_invitation_sent`;
+  const creatorIsBuyer = input.creatorRole === "buyer";
+  const buyer = creatorIsBuyer ? creator : invited;
+  const seller = creatorIsBuyer ? invited : creator;
+  const invitedRole = creatorIsBuyer ? "Seller" : "Buyer";
+  const state = creatorIsBuyer
+    ? "awaiting_seller_acceptance"
+    : "awaiting_buyer_acceptance";
+
+  const marketplaceName = input.marketplace ?? "Manual";
+  const writeStatements: D1PreparedStatement[] = [];
+
+  if (marketplaceReferenceId) {
+    writeStatements.push(
+      db
+        .prepare(
+          `
+            INSERT INTO marketplace_references (
+              id,
+              marketplace_name,
+              external_url,
+              external_id,
+              snapshot_hash,
+              created_at
+            )
+            VALUES (?, ?, ?, ?, ?, ?)
+          `
+        )
+        .bind(
+          marketplaceReferenceId,
+          marketplaceName,
+          input.listingUrl,
+          null,
+          `hash_${marketplaceReferenceId}`,
+          now
+        )
+    );
+  }
+
+  writeStatements.push(
+    db
+      .prepare(
+        `
+          INSERT INTO trades (
+            id,
+            trade_code,
+            buyer_user_id,
+            seller_user_id,
+            marketplace_reference_id,
+            item_title,
+            item_summary,
+            terms_hash,
+            status,
+            observation_window_ends_at,
+            created_at,
+            updated_at
+          )
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `
+      )
+      .bind(
+        tradeId,
+        tradeCode,
+        buyer.id,
+        seller.id,
+        marketplaceReferenceId,
+        input.itemTitle,
+        input.itemSummary,
+        `hash_terms_${tradeCode}`,
+        state,
+        null,
+        now,
+        now
+      ),
+    db
+      .prepare(
+        `
+          INSERT INTO reputation_events (
+            id,
+            event_type,
+            trade_id,
+            actor_user_id,
+            target_user_id,
+            event_payload_json,
+            event_hash,
+            blockchain_tx_id,
+            previous_event_id,
+            created_at
+          )
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `
+      )
+      .bind(
+        tradeCreatedEventId,
+        "trade_created",
+        tradeId,
+        creator.id,
+        creator.id,
+        JSON.stringify({
+          description:
+            "Trade Record opened from an external marketplace listing."
+        }),
+        `hash_${tradeCreatedEventId}`,
+        null,
+        null,
+        now
+      ),
+    db
+      .prepare(
+        `
+          INSERT INTO reputation_events (
+            id,
+            event_type,
+            trade_id,
+            actor_user_id,
+            target_user_id,
+            event_payload_json,
+            event_hash,
+            blockchain_tx_id,
+            previous_event_id,
+            created_at
+          )
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `
+      )
+      .bind(
+        invitationEventId,
+        "invitation_sent",
+        tradeId,
+        creator.id,
+        invited.id,
+        JSON.stringify({
+          description: `${invitedRole} was invited to join this Trade Record.`
+        }),
+        `hash_${invitationEventId}`,
+        null,
+        tradeCreatedEventId,
+        now
+      )
+  );
+
+  await db.batch(writeStatements);
+
+  return {
+    tradeCode,
+    publicUrl: `/trade/${tradeCode}`,
+    state,
+    message: "Trade Record created."
+  };
+}
+
+async function getUserByTrustLayerId(
+  db: D1Database,
+  trustlayerId: string
+): Promise<TradeUserRow | null> {
+  return db
+    .prepare(
+      `
+        SELECT
+          id,
+          display_name,
+          trustlayer_id
+        FROM users
+        WHERE trustlayer_id = ?
+        LIMIT 1
+      `
+    )
+    .bind(trustlayerId)
+    .first<TradeUserRow>();
+}
+
+async function generateTradeCode(db: D1Database): Promise<string> {
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    const tradeCode = `tr-${randomNumericId()}`;
+    const existingTrade = await db
+      .prepare("SELECT id FROM trades WHERE trade_code = ? LIMIT 1")
+      .bind(tradeCode)
+      .first<{ id: string }>();
+
+    if (!existingTrade) {
+      return tradeCode;
+    }
+  }
+
+  throw new Error("Unable to generate unique trade code.");
+}
+
 function mapLifecycle(
   trade: TradeRecordRow,
   timeline: TradeTimelineEvent[]
@@ -195,6 +425,13 @@ function trimUtcSuffix(value: string): string {
 
 function formatDisplayTime(value: string): string {
   return trimUtcSuffix(value).replace("T", " ").slice(0, 16);
+}
+
+function randomNumericId(): string {
+  const randomValue = new Uint32Array(1);
+  crypto.getRandomValues(randomValue);
+
+  return String((randomValue[0] ?? 0) % 1_000_000).padStart(6, "0");
 }
 
 function titleCase(value: string): string {
