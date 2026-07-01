@@ -1,6 +1,7 @@
 import { jsonResponse } from "../http/json-response";
 import {
   acceptTradeInvitation,
+  confirmTrade,
   createTradeRecord,
   getTradeRecordByCode,
   type CreateTradeInput
@@ -18,6 +19,10 @@ type CreateTradeRequestBody = {
 };
 
 type AcceptTradeInvitationRequestBody = {
+  participantTrustlayerId?: unknown;
+};
+
+type ConfirmTradeRequestBody = {
   participantTrustlayerId?: unknown;
 };
 
@@ -43,6 +48,16 @@ export async function handleTradeRoutes(
         env,
         acceptMatch[1] ?? ""
       );
+    }
+
+    return methodNotAllowedResponse();
+  }
+
+  const confirmMatch = url.pathname.match(/^\/api\/trades\/([^/]+)\/confirm$/);
+
+  if (confirmMatch) {
+    if (request.method === "POST") {
+      return handleConfirmTrade(request, env, confirmMatch[1] ?? "");
     }
 
     return methodNotAllowedResponse();
@@ -89,6 +104,101 @@ export async function handleTradeRoutes(
         error: {
           code: "INTERNAL_ERROR",
           message: "Unable to load Trade Record."
+        }
+      },
+      {
+        status: 500
+      }
+    );
+  }
+}
+
+async function handleConfirmTrade(
+  request: Request,
+  env: WorkerEnv,
+  tradeCode: string
+): Promise<Response> {
+  const body = await parseConfirmTradeBody(request);
+
+  if (!body) {
+    return validationErrorResponse("Invalid JSON request body.");
+  }
+
+  const participantTrustlayerId = readRequiredString(
+    body.participantTrustlayerId
+  );
+
+  if (!participantTrustlayerId) {
+    return validationErrorResponse("Missing participantTrustlayerId.");
+  }
+
+  try {
+    const result = await confirmTrade(env.DB, tradeCode, participantTrustlayerId);
+
+    if (result.status === "confirmed") {
+      return jsonResponse({
+        success: true,
+        data: result.data
+      });
+    }
+
+    if (
+      result.status === "participant_not_found" ||
+      result.status === "trade_not_found"
+    ) {
+      return jsonResponse(
+        {
+          success: false,
+          error: {
+            code: "NOT_FOUND",
+            message: "Trade Record or participant not found."
+          }
+        },
+        {
+          status: 404
+        }
+      );
+    }
+
+    if (result.status === "forbidden") {
+      return jsonResponse(
+        {
+          success: false,
+          error: {
+            code: "FORBIDDEN",
+            message: "Participant is not part of this Trade Record."
+          }
+        },
+        {
+          status: 403
+        }
+      );
+    }
+
+    return jsonResponse(
+      {
+        success: false,
+        error: {
+          code: "CONFLICT",
+          message:
+            result.status === "duplicate_confirmation"
+              ? "Participant has already confirmed this Trade Record."
+              : "Trade Record is not ready for confirmation."
+        }
+      },
+      {
+        status: 409
+      }
+    );
+  } catch (error) {
+    console.error("Unable to confirm Trade Record.", error);
+
+    return jsonResponse(
+      {
+        success: false,
+        error: {
+          code: "INTERNAL_ERROR",
+          message: "Unable to confirm Trade Record."
         }
       },
       {
@@ -247,6 +357,22 @@ async function handleCreateTrade(
         status: 500
       }
     );
+  }
+}
+
+async function parseConfirmTradeBody(
+  request: Request
+): Promise<ConfirmTradeRequestBody | null> {
+  try {
+    const body = (await request.json()) as unknown;
+
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+      return null;
+    }
+
+    return body as ConfirmTradeRequestBody;
+  } catch {
+    return null;
   }
 }
 

@@ -9,6 +9,7 @@ const availableTradeLifecycleStates: TradeLifecycleStateId[] = [
   "awaiting_seller_acceptance",
   "accepted",
   "awaiting_seller_confirmation",
+  "awaiting_buyer_confirmation",
   "mutually_confirmed",
   "recorded",
   "cancelled"
@@ -45,6 +46,11 @@ type TradeAcceptanceRow = {
   trade_status: string;
   buyer_user_id: string | null;
   seller_user_id: string | null;
+};
+
+type TradeConfirmationEventRow = {
+  event_type: string;
+  created_at: string;
 };
 
 type EventPayload = {
@@ -87,17 +93,45 @@ export type AcceptTradeInvitationResult =
         | "wrong_state";
     };
 
+export type ConfirmTradeResult =
+  | {
+      status: "confirmed";
+      data: {
+        tradeCode: string;
+        publicUrl: string;
+        state:
+          | "awaiting_seller_confirmation"
+          | "awaiting_buyer_confirmation"
+          | "recorded";
+        message: string;
+      };
+    }
+  | {
+      status:
+        | "duplicate_confirmation"
+        | "forbidden"
+        | "participant_not_found"
+        | "trade_not_found"
+        | "wrong_state";
+    };
+
 const eventTypeLabels: Record<string, string> = {
   buyer_accepted: "Buyer Accepted",
+  buyer_confirmed: "Buyer Confirmed",
   invitation_sent: "Invitation Sent",
   seller_accepted: "Seller Accepted",
+  seller_confirmed: "Seller Confirmed",
   trade_created: "Trade Created",
+  trade_recorded: "Trade Recorded",
   waiting_for_seller_acceptance: "Waiting for Seller Acceptance"
 };
 
 const tradeStatusLabels: Record<string, string> = {
   accepted: "Accepted",
-  awaiting_seller_acceptance: "Awaiting Seller Acceptance"
+  awaiting_buyer_confirmation: "Awaiting Buyer Confirmation",
+  awaiting_seller_acceptance: "Awaiting Seller Acceptance",
+  awaiting_seller_confirmation: "Awaiting Seller Confirmation",
+  recorded: "Recorded"
 };
 
 export async function getTradeRecordByCode(
@@ -440,6 +474,164 @@ export async function acceptTradeInvitation(
   };
 }
 
+export async function confirmTrade(
+  db: D1Database,
+  tradeCode: string,
+  participantTrustlayerId: string
+): Promise<ConfirmTradeResult> {
+  const [trade, participant] = await Promise.all([
+    getTradeForAcceptance(db, tradeCode),
+    getUserByTrustLayerId(db, participantTrustlayerId)
+  ]);
+
+  if (!trade) {
+    return { status: "trade_not_found" };
+  }
+
+  if (!participant) {
+    return { status: "participant_not_found" };
+  }
+
+  const participantRole = getParticipantRole(trade, participant.id);
+
+  if (!participantRole) {
+    return { status: "forbidden" };
+  }
+
+  const confirmationEvents = await getConfirmationEvents(db, trade.trade_id);
+  const buyerConfirmed = confirmationEvents.some(
+    (event) => event.event_type === "buyer_confirmed"
+  );
+  const sellerConfirmed = confirmationEvents.some(
+    (event) => event.event_type === "seller_confirmed"
+  );
+
+  if (
+    (participantRole === "buyer" && buyerConfirmed) ||
+    (participantRole === "seller" && sellerConfirmed)
+  ) {
+    return { status: "duplicate_confirmation" };
+  }
+
+  if (!isConfirmableTradeStatus(trade.trade_status)) {
+    return { status: "wrong_state" };
+  }
+
+  const now = new Date().toISOString();
+  const eventType =
+    participantRole === "buyer" ? "buyer_confirmed" : "seller_confirmed";
+  const eventLabel =
+    participantRole === "buyer" ? "Buyer Confirmed" : "Seller Confirmed";
+  const eventId = `evt_${trade.trade_code.replace("tr-", "")}_${eventType}`;
+  const bothConfirmed =
+    (participantRole === "buyer" && sellerConfirmed) ||
+    (participantRole === "seller" && buyerConfirmed);
+  const nextStatus = bothConfirmed
+    ? "recorded"
+    : participantRole === "buyer"
+      ? "awaiting_seller_confirmation"
+      : "awaiting_buyer_confirmation";
+  const writeStatements = [
+    db
+      .prepare(
+        `
+          UPDATE trades
+          SET
+            status = ?,
+            updated_at = ?
+          WHERE id = ?
+        `
+      )
+      .bind(nextStatus, now, trade.trade_id),
+    db
+      .prepare(
+        `
+          INSERT INTO reputation_events (
+            id,
+            event_type,
+            trade_id,
+            actor_user_id,
+            target_user_id,
+            event_payload_json,
+            event_hash,
+            blockchain_tx_id,
+            previous_event_id,
+            created_at
+          )
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `
+      )
+      .bind(
+        eventId,
+        eventType,
+        trade.trade_id,
+        participant.id,
+        participant.id,
+        JSON.stringify({
+          description: `${eventLabel} completion of this Trade Record.`
+        }),
+        `hash_${eventId}`,
+        null,
+        null,
+        now
+      )
+  ];
+
+  if (bothConfirmed) {
+    const recordedEventId = `evt_${trade.trade_code.replace("tr-", "")}_trade_recorded`;
+
+    writeStatements.push(
+      db
+        .prepare(
+          `
+            INSERT INTO reputation_events (
+              id,
+              event_type,
+              trade_id,
+              actor_user_id,
+              target_user_id,
+              event_payload_json,
+              event_hash,
+              blockchain_tx_id,
+              previous_event_id,
+              created_at
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `
+        )
+        .bind(
+          recordedEventId,
+          "trade_recorded",
+          trade.trade_id,
+          participant.id,
+          participant.id,
+          JSON.stringify({
+            description:
+              "Both participants confirmed completion. The Trade Record was recorded into Trading History."
+          }),
+          `hash_${recordedEventId}`,
+          null,
+          eventId,
+          now
+        )
+    );
+  }
+
+  await db.batch(writeStatements);
+
+  return {
+    status: "confirmed",
+    data: {
+      tradeCode: trade.trade_code,
+      publicUrl: `/trade/${trade.trade_code}`,
+      state: nextStatus,
+      message: bothConfirmed
+        ? "Trade Record completed."
+        : "Trade confirmation recorded."
+    }
+  };
+}
+
 async function getTradeForAcceptance(
   db: D1Database,
   tradeCode: string
@@ -460,6 +652,28 @@ async function getTradeForAcceptance(
     )
     .bind(tradeCode)
     .first<TradeAcceptanceRow>();
+}
+
+async function getConfirmationEvents(
+  db: D1Database,
+  tradeId: string
+): Promise<TradeConfirmationEventRow[]> {
+  const eventsResult = await db
+    .prepare(
+      `
+        SELECT
+          event_type,
+          created_at
+        FROM reputation_events
+        WHERE trade_id = ?
+          AND event_type IN ('buyer_confirmed', 'seller_confirmed')
+        ORDER BY created_at ASC
+      `
+    )
+    .bind(tradeId)
+    .all<TradeConfirmationEventRow>();
+
+  return eventsResult.results ?? [];
 }
 
 function getParticipantRole(
@@ -485,6 +699,14 @@ function isAwaitingParticipant(
     (tradeStatus === "awaiting_seller_acceptance" &&
       participantRole === "seller") ||
     (tradeStatus === "awaiting_buyer_acceptance" && participantRole === "buyer")
+  );
+}
+
+function isConfirmableTradeStatus(tradeStatus: string): boolean {
+  return (
+    tradeStatus === "accepted" ||
+    tradeStatus === "awaiting_seller_confirmation" ||
+    tradeStatus === "awaiting_buyer_confirmation"
   );
 }
 
@@ -528,25 +750,86 @@ function mapLifecycle(
   trade: TradeRecordRow,
   timeline: TradeTimelineEvent[]
 ): TradeLifecyclePayload {
-  const isAccepted = trade.trade_status === "accepted";
+  const hasAcceptedInvitation = [
+    "accepted",
+    "awaiting_seller_confirmation",
+    "awaiting_buyer_confirmation",
+    "recorded"
+  ].includes(trade.trade_status);
+  const buyerConfirmedAt = findTimelineDisplayTime(timeline, "Buyer Confirmed");
+  const sellerConfirmedAt = findTimelineDisplayTime(
+    timeline,
+    "Seller Confirmed"
+  );
 
   return {
     tradeStatus: tradeStatusLabels[trade.trade_status] ?? trade.trade_status,
     invitation: {
       invitedRole: "Seller",
       invitedParticipant: trade.seller_name ?? "Unknown seller",
-      state: isAccepted ? "Accepted" : "Pending",
+      state: hasAcceptedInvitation ? "Accepted" : "Pending",
       link: `/trade/${trade.trade_code}`,
       createdBy: trade.buyer_name ?? "Unknown creator"
     },
-    confirmation: {
+    confirmation: mapConfirmation(
+      trade.trade_status,
+      buyerConfirmedAt,
+      sellerConfirmedAt
+    ),
+    timeline,
+    note: "TrustLayer records historical events. It does not judge participants."
+  };
+}
+
+function mapConfirmation(
+  tradeStatus: string,
+  buyerConfirmedAt: string | null,
+  sellerConfirmedAt: string | null
+): TradeLifecyclePayload["confirmation"] {
+  if (
+    tradeStatus !== "accepted" &&
+    tradeStatus !== "awaiting_seller_confirmation" &&
+    tradeStatus !== "awaiting_buyer_confirmation" &&
+    tradeStatus !== "recorded"
+  ) {
+    return {
       currentState: "Unavailable until Participant Acceptance",
       isUnavailable: true,
       participants: [],
       note: "No trade confirmation can happen until both participants have joined this Trade Record."
-    },
-    timeline,
-    note: "TrustLayer records historical events. It does not judge participants."
+    };
+  }
+
+  if (tradeStatus === "recorded") {
+    return {
+      currentState: "Recorded into Trading History",
+      participants: [
+        { role: "Buyer", state: "Confirmed", timestamp: buyerConfirmedAt ?? undefined },
+        {
+          role: "Seller",
+          state: "Confirmed",
+          timestamp: sellerConfirmedAt ?? undefined
+        }
+      ],
+      note: "Both participants confirmed completion. TrustLayer recorded the Trade Record into Trading History."
+    };
+  }
+
+  return {
+    currentState: tradeStatusLabels[tradeStatus] ?? "Waiting for Confirmation",
+    participants: [
+      {
+        role: "Buyer",
+        state: buyerConfirmedAt ? "Confirmed" : "Pending",
+        timestamp: buyerConfirmedAt ?? undefined
+      },
+      {
+        role: "Seller",
+        state: sellerConfirmedAt ? "Confirmed" : "Pending",
+        timestamp: sellerConfirmedAt ?? undefined
+      }
+    ],
+    note: "Confirmation Events are recorded as history. The Trade Record is not recorded until both participants confirm completion."
   };
 }
 
@@ -570,6 +853,15 @@ function mapTimelineEvent(event: TradeEventRow): TradeTimelineEvent {
       payload.summary ??
       "Trade history event recorded by TrustLayer."
   };
+}
+
+function findTimelineDisplayTime(
+  timeline: TradeTimelineEvent[],
+  eventType: string
+): string | null {
+  return (
+    timeline.find((event) => event.eventType === eventType)?.displayTime ?? null
+  );
 }
 
 function parseEventPayload(value: string | null): EventPayload {

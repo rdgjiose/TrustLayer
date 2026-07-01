@@ -32,6 +32,7 @@ export type TradeLifecycleStateId =
   | "awaiting_seller_acceptance"
   | "accepted"
   | "awaiting_seller_confirmation"
+  | "awaiting_buyer_confirmation"
   | "mutually_confirmed"
   | "recorded"
   | "cancelled";
