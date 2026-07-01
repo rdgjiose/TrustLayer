@@ -4,7 +4,9 @@ import {
   confirmTrade,
   createTradeRecord,
   getTradeRecordByCode,
-  type CreateTradeInput
+  updateTradeSummary,
+  type CreateTradeInput,
+  type UpdateTradeSummaryInput
 } from "../repositories/trades";
 import type { WorkerEnv } from "../env";
 
@@ -24,6 +26,16 @@ type AcceptTradeInvitationRequestBody = {
 
 type ConfirmTradeRequestBody = {
   participantTrustlayerId?: unknown;
+};
+
+type UpdateTradeSummaryRequestBody = {
+  listingPrice?: unknown;
+  finalAgreedPrice?: unknown;
+  currency?: unknown;
+  tradeDate?: unknown;
+  meetingLocationNote?: unknown;
+  paymentMethod?: unknown;
+  includedNotes?: unknown;
 };
 
 export async function handleTradeRoutes(
@@ -58,6 +70,16 @@ export async function handleTradeRoutes(
   if (confirmMatch) {
     if (request.method === "POST") {
       return handleConfirmTrade(request, env, confirmMatch[1] ?? "");
+    }
+
+    return methodNotAllowedResponse();
+  }
+
+  const summaryMatch = url.pathname.match(/^\/api\/trades\/([^/]+)\/summary$/);
+
+  if (summaryMatch) {
+    if (request.method === "PATCH") {
+      return handleUpdateTradeSummary(request, env, summaryMatch[1] ?? "");
     }
 
     return methodNotAllowedResponse();
@@ -104,6 +126,63 @@ export async function handleTradeRoutes(
         error: {
           code: "INTERNAL_ERROR",
           message: "Unable to load Trade Record."
+        }
+      },
+      {
+        status: 500
+      }
+    );
+  }
+}
+
+async function handleUpdateTradeSummary(
+  request: Request,
+  env: WorkerEnv,
+  tradeCode: string
+): Promise<Response> {
+  const body = await parseUpdateTradeSummaryBody(request);
+
+  if (!body) {
+    return validationErrorResponse("Invalid JSON request body.");
+  }
+
+  const input = validateUpdateTradeSummaryBody(body);
+
+  if (!input) {
+    return validationErrorResponse("Invalid Final Trade Summary fields.");
+  }
+
+  try {
+    const result = await updateTradeSummary(env.DB, tradeCode, input);
+
+    if (result.status === "updated") {
+      return jsonResponse({
+        success: true,
+        data: result.data
+      });
+    }
+
+    return jsonResponse(
+      {
+        success: false,
+        error: {
+          code: "NOT_FOUND",
+          message: "Trade Record not found."
+        }
+      },
+      {
+        status: 404
+      }
+    );
+  } catch (error) {
+    console.error("Unable to update Final Trade Summary.", error);
+
+    return jsonResponse(
+      {
+        success: false,
+        error: {
+          code: "INTERNAL_ERROR",
+          message: "Unable to update Final Trade Summary."
         }
       },
       {
@@ -360,6 +439,22 @@ async function handleCreateTrade(
   }
 }
 
+async function parseUpdateTradeSummaryBody(
+  request: Request
+): Promise<UpdateTradeSummaryRequestBody | null> {
+  try {
+    const body = (await request.json()) as unknown;
+
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+      return null;
+    }
+
+    return body as UpdateTradeSummaryRequestBody;
+  } catch {
+    return null;
+  }
+}
+
 async function parseConfirmTradeBody(
   request: Request
 ): Promise<ConfirmTradeRequestBody | null> {
@@ -436,6 +531,61 @@ function validateCreateTradeBody(
   };
 }
 
+function validateUpdateTradeSummaryBody(
+  body: UpdateTradeSummaryRequestBody
+): UpdateTradeSummaryInput | null {
+  const input: UpdateTradeSummaryInput = {};
+  const listingPrice = readPatchString(body, "listingPrice");
+  const finalAgreedPrice = readPatchString(body, "finalAgreedPrice");
+  const currency = readPatchString(body, "currency");
+  const tradeDate = readPatchString(body, "tradeDate");
+  const meetingLocationNote = readPatchString(body, "meetingLocationNote");
+  const paymentMethod = readPatchString(body, "paymentMethod");
+  const includedNotes = readPatchString(body, "includedNotes");
+
+  if (
+    listingPrice === null ||
+    finalAgreedPrice === null ||
+    currency === null ||
+    tradeDate === null ||
+    meetingLocationNote === null ||
+    paymentMethod === null ||
+    includedNotes === null
+  ) {
+    return null;
+  }
+
+  if (listingPrice) {
+    input.listingPrice = listingPrice;
+  }
+
+  if (finalAgreedPrice) {
+    input.finalAgreedPrice = finalAgreedPrice;
+  }
+
+  if (currency) {
+    input.currency = currency.toUpperCase();
+  }
+
+  if (tradeDate) {
+    input.tradeDate = tradeDate;
+  }
+
+  if (meetingLocationNote) {
+    input.meetingLocationNote = meetingLocationNote;
+  }
+
+  if (paymentMethod) {
+    input.paymentMethod = paymentMethod;
+  }
+
+  if (includedNotes) {
+    input.includedNotes = includedNotes;
+  }
+
+  return Object.keys(input).length > 0 ? input : null;
+}
+
 function readRequiredString(value: unknown): string | null {
   if (typeof value !== "string") {
     return null;
@@ -454,6 +604,27 @@ function readOptionalString(value: unknown): string | null {
   const trimmedValue = value.trim();
 
   return trimmedValue.length > 0 ? trimmedValue : null;
+}
+
+function readPatchString(
+  body: UpdateTradeSummaryRequestBody,
+  fieldName: keyof UpdateTradeSummaryRequestBody
+): string | null | undefined {
+  if (!Object.prototype.hasOwnProperty.call(body, fieldName)) {
+    return undefined;
+  }
+
+  const value = body[fieldName];
+
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const trimmedValue = value.trim();
+
+  return trimmedValue.length > 0 && trimmedValue.length <= 240
+    ? trimmedValue
+    : null;
 }
 
 function validationErrorResponse(message: string): Response {

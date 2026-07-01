@@ -53,6 +53,19 @@ type TradeConfirmationEventRow = {
   created_at: string;
 };
 
+type TradeSummaryRow = {
+  trade_code: string;
+  listing_price: string | null;
+  final_agreed_price: string | null;
+  currency: string | null;
+  trade_date: string | null;
+  meeting_location_note: string | null;
+  payment_method: string | null;
+  included_notes: string | null;
+  final_summary_status: string | null;
+  final_summary_updated_at: string | null;
+};
+
 type EventPayload = {
   description?: string;
   summary?: string;
@@ -74,6 +87,40 @@ export type CreateTradeResult = {
   state: string;
   message: string;
 };
+
+export type UpdateTradeSummaryInput = {
+  listingPrice?: string;
+  finalAgreedPrice?: string;
+  currency?: string;
+  tradeDate?: string;
+  meetingLocationNote?: string;
+  paymentMethod?: string;
+  includedNotes?: string;
+};
+
+export type TradeSummary = {
+  listingPrice: string | null;
+  finalAgreedPrice: string | null;
+  currency: string | null;
+  tradeDate: string | null;
+  meetingLocationNote: string | null;
+  paymentMethod: string | null;
+  includedNotes: string | null;
+  status: string | null;
+  updatedAt: string | null;
+};
+
+export type UpdateTradeSummaryResult =
+  | {
+      status: "updated";
+      data: {
+        tradeCode: string;
+        summary: TradeSummary;
+      };
+    }
+  | {
+      status: "trade_not_found";
+    };
 
 export type AcceptTradeInvitationResult =
   | {
@@ -208,6 +255,65 @@ export async function getTradeRecordByCode(
     currentState: mapTradeStatus(trade.trade_status),
     availableStates: availableTradeLifecycleStates,
     lifecycle
+  };
+}
+
+export async function updateTradeSummary(
+  db: D1Database,
+  tradeCode: string,
+  input: UpdateTradeSummaryInput
+): Promise<UpdateTradeSummaryResult> {
+  const existingSummary = await getTradeSummaryByCode(db, tradeCode);
+
+  if (!existingSummary) {
+    return { status: "trade_not_found" };
+  }
+
+  const now = new Date().toISOString();
+
+  await db
+    .prepare(
+      `
+        UPDATE trades
+        SET
+          listing_price = ?,
+          final_agreed_price = ?,
+          currency = ?,
+          trade_date = ?,
+          meeting_location_note = ?,
+          payment_method = ?,
+          included_notes = ?,
+          final_summary_status = ?,
+          final_summary_updated_at = ?
+        WHERE trade_code = ?
+      `
+    )
+    .bind(
+      input.listingPrice ?? existingSummary.listing_price,
+      input.finalAgreedPrice ?? existingSummary.final_agreed_price,
+      input.currency ?? existingSummary.currency,
+      input.tradeDate ?? existingSummary.trade_date,
+      input.meetingLocationNote ?? existingSummary.meeting_location_note,
+      input.paymentMethod ?? existingSummary.payment_method,
+      input.includedNotes ?? existingSummary.included_notes,
+      "proposed",
+      now,
+      tradeCode
+    )
+    .run();
+
+  const updatedSummary = await getTradeSummaryByCode(db, tradeCode);
+
+  if (!updatedSummary) {
+    return { status: "trade_not_found" };
+  }
+
+  return {
+    status: "updated",
+    data: {
+      tradeCode: updatedSummary.trade_code,
+      summary: mapTradeSummary(updatedSummary)
+    }
   };
 }
 
@@ -676,6 +782,33 @@ async function getConfirmationEvents(
   return eventsResult.results ?? [];
 }
 
+async function getTradeSummaryByCode(
+  db: D1Database,
+  tradeCode: string
+): Promise<TradeSummaryRow | null> {
+  return db
+    .prepare(
+      `
+        SELECT
+          trade_code,
+          listing_price,
+          final_agreed_price,
+          currency,
+          trade_date,
+          meeting_location_note,
+          payment_method,
+          included_notes,
+          final_summary_status,
+          final_summary_updated_at
+        FROM trades
+        WHERE trade_code = ?
+        LIMIT 1
+      `
+    )
+    .bind(tradeCode)
+    .first<TradeSummaryRow>();
+}
+
 function getParticipantRole(
   trade: TradeAcceptanceRow,
   participantUserId: string
@@ -744,6 +877,20 @@ async function generateTradeCode(db: D1Database): Promise<string> {
   }
 
   throw new Error("Unable to generate unique trade code.");
+}
+
+function mapTradeSummary(row: TradeSummaryRow): TradeSummary {
+  return {
+    listingPrice: row.listing_price,
+    finalAgreedPrice: row.final_agreed_price,
+    currency: row.currency,
+    tradeDate: row.trade_date,
+    meetingLocationNote: row.meeting_location_note,
+    paymentMethod: row.payment_method,
+    includedNotes: row.included_notes,
+    status: row.final_summary_status,
+    updatedAt: row.final_summary_updated_at
+  };
 }
 
 function mapLifecycle(
