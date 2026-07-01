@@ -8,6 +8,8 @@ import {
   type TradeLifecycleState
 } from "../../../lib/trade-lifecycle";
 import type {
+  ApiErrorResponse,
+  ApiSuccessResponse,
   TradeConfirmationPayload,
   TradeInvitationPayload,
   TradeRecordData,
@@ -39,6 +41,19 @@ const evidenceReferences = [
   }
 ];
 
+const mvpParticipantTrustlayerId = "tl-4m7q2";
+
+type AcceptTradeInvitationData = {
+  tradeCode: string;
+  publicUrl: string;
+  state: "accepted";
+  message: string;
+};
+
+type AcceptTradeInvitationResponse =
+  | ApiSuccessResponse<AcceptTradeInvitationData>
+  | ApiErrorResponse;
+
 function createApiLifecycleState(
   tradeRecord: TradeRecordData
 ): TradeLifecycleState {
@@ -57,6 +72,27 @@ function createApiLifecycleState(
 
 function formatTrustLayerId(trustlayerId: string) {
   return trustlayerId.toUpperCase();
+}
+
+async function fetchTradeRecord(
+  tradeCode: string,
+  signal?: AbortSignal
+): Promise<TradeRecordData> {
+  const response = await fetch(`/api/trades/${tradeCode}`, {
+    signal
+  });
+
+  if (!response.ok) {
+    throw new Error("Unable to load Trade Record.");
+  }
+
+  const result = (await response.json()) as TradeRecordResponse;
+
+  if (!result.success || !result.data) {
+    throw new Error("Unable to load Trade Record.");
+  }
+
+  return result.data;
 }
 
 function TradeStateSwitcher({
@@ -175,6 +211,41 @@ function Participants({
             <Link href={participant.profileHref}>Open Reputation Profile</Link>
           </article>
         ))}
+      </div>
+    </section>
+  );
+}
+
+function AcceptInvitationAction({
+  errorMessage,
+  isAccepting,
+  onAccept,
+  successMessage
+}: {
+  errorMessage: string | null;
+  isAccepting: boolean;
+  onAccept: () => void;
+  successMessage: string | null;
+}) {
+  return (
+    <section className="accept-invitation-action" aria-labelledby="accept-invitation">
+      <div>
+        <p className="eyebrow">MVP Prototype Action</p>
+        <h2 id="accept-invitation">Accept Invitation</h2>
+        <p>
+          For this MVP prototype, this action uses the invited participant
+          identity {mvpParticipantTrustlayerId}. This is not real
+          authentication or account switching.
+        </p>
+      </div>
+      {!successMessage ? (
+        <button disabled={isAccepting} onClick={onAccept} type="button">
+          {isAccepting ? "Accepting Invitation..." : "Accept Invitation"}
+        </button>
+      ) : null}
+      <div className="accept-invitation-status" aria-live="polite">
+        {successMessage ? <p>{successMessage}</p> : null}
+        {errorMessage ? <p role="alert">{errorMessage}</p> : null}
       </div>
     </section>
   );
@@ -322,28 +393,23 @@ export default function TradeRecordPage() {
     useState<TradeLifecycleStateId | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isAccepting, setIsAccepting] = useState(false);
+  const [acceptSuccessMessage, setAcceptSuccessMessage] = useState<string | null>(
+    null
+  );
+  const [acceptErrorMessage, setAcceptErrorMessage] = useState<string | null>(
+    null
+  );
 
   useEffect(() => {
     const controller = new AbortController();
 
     async function loadTradeRecord() {
       try {
-        const response = await fetch(`/api/trades/${tradeCode}`, {
-          signal: controller.signal
-        });
+        const data = await fetchTradeRecord(tradeCode, controller.signal);
 
-        if (!response.ok) {
-          throw new Error("Unable to load Trade Record.");
-        }
-
-        const result = (await response.json()) as TradeRecordResponse;
-
-        if (!result.success || !result.data) {
-          throw new Error("Unable to load Trade Record.");
-        }
-
-        setTradeRecord(result.data);
-        setSelectedStateId(result.data.currentState);
+        setTradeRecord(data);
+        setSelectedStateId(data.currentState);
         setErrorMessage(null);
       } catch (error) {
         if (error instanceof DOMException && error.name === "AbortError") {
@@ -362,6 +428,39 @@ export default function TradeRecordPage() {
 
     return () => controller.abort();
   }, [tradeCode]);
+
+  async function handleAcceptInvitation() {
+    setIsAccepting(true);
+    setAcceptSuccessMessage(null);
+    setAcceptErrorMessage(null);
+
+    try {
+      const response = await fetch(`/api/trades/${tradeCode}/accept`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          participantTrustlayerId: mvpParticipantTrustlayerId
+        })
+      });
+      const result = (await response.json()) as AcceptTradeInvitationResponse;
+
+      if (!response.ok || !result.success) {
+        throw new Error("Unable to accept invitation.");
+      }
+
+      const updatedTradeRecord = await fetchTradeRecord(tradeCode);
+
+      setTradeRecord(updatedTradeRecord);
+      setSelectedStateId(updatedTradeRecord.currentState);
+      setAcceptSuccessMessage("Invitation accepted.");
+    } catch {
+      setAcceptErrorMessage("Unable to accept invitation.");
+    } finally {
+      setIsAccepting(false);
+    }
+  }
 
   if (isLoading) {
     return (
@@ -393,6 +492,11 @@ export default function TradeRecordPage() {
       ? apiLifecycleState
       : tradeLifecycleStates.find((state) => state.id === selectedStateId) ??
         apiLifecycleState;
+  const isAwaitingInvitation =
+    tradeRecord.currentState === "awaiting_seller_acceptance" &&
+    tradeRecord.lifecycle.invitation.state === "Pending";
+  const shouldShowAcceptInvitation =
+    isAwaitingInvitation || Boolean(acceptSuccessMessage);
 
   return (
     <main className="profile-page trade-page">
@@ -404,6 +508,14 @@ export default function TradeRecordPage() {
       <TradeSummary tradeRecord={tradeRecord} status={selectedState.status} />
       <Participants participants={tradeRecord.participants} />
       <TradeInvitation invitation={selectedState.invitation} />
+      {shouldShowAcceptInvitation ? (
+        <AcceptInvitationAction
+          errorMessage={acceptErrorMessage}
+          isAccepting={isAccepting}
+          onAccept={handleAcceptInvitation}
+          successMessage={acceptSuccessMessage}
+        />
+      ) : null}
       <TradeConfirmation confirmation={selectedState.confirmation} />
       <TradeTimeline events={selectedState.timeline} />
       <AttachedEvidence />
