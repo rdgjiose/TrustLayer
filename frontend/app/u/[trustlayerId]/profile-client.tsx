@@ -178,8 +178,8 @@ function EventTimeline({ events }: { events: ReputationTimelineEvent[] }) {
     <section className="profile-section" aria-labelledby="reputation-events">
       <h2 id="reputation-events">Reputation Events</h2>
       <ol className="timeline">
-        {events.map((event) => (
-          <li key={`${event.date}-${event.eventType}`}>
+        {events.map((event, index) => (
+          <li key={`${event.date}-${event.eventType}-${index}`}>
             <time dateTime={event.date}>{event.date}</time>
             <h3>{event.eventType}</h3>
             <p>{event.summary}</p>
