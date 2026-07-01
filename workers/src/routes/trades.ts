@@ -1,5 +1,6 @@
 import { jsonResponse } from "../http/json-response";
 import {
+  acceptTradeInvitation,
   createTradeRecord,
   getTradeRecordByCode,
   type CreateTradeInput
@@ -16,6 +17,10 @@ type CreateTradeRequestBody = {
   itemSummary?: unknown;
 };
 
+type AcceptTradeInvitationRequestBody = {
+  participantTrustlayerId?: unknown;
+};
+
 export async function handleTradeRoutes(
   request: Request,
   url: URL,
@@ -24,6 +29,20 @@ export async function handleTradeRoutes(
   if (url.pathname === "/api/trades") {
     if (request.method === "POST") {
       return handleCreateTrade(request, env);
+    }
+
+    return methodNotAllowedResponse();
+  }
+
+  const acceptMatch = url.pathname.match(/^\/api\/trades\/([^/]+)\/accept$/);
+
+  if (acceptMatch) {
+    if (request.method === "POST") {
+      return handleAcceptTradeInvitation(
+        request,
+        env,
+        acceptMatch[1] ?? ""
+      );
     }
 
     return methodNotAllowedResponse();
@@ -70,6 +89,102 @@ export async function handleTradeRoutes(
         error: {
           code: "INTERNAL_ERROR",
           message: "Unable to load Trade Record."
+        }
+      },
+      {
+        status: 500
+      }
+    );
+  }
+}
+
+async function handleAcceptTradeInvitation(
+  request: Request,
+  env: WorkerEnv,
+  tradeCode: string
+): Promise<Response> {
+  const body = await parseAcceptTradeInvitationBody(request);
+
+  if (!body) {
+    return validationErrorResponse("Invalid JSON request body.");
+  }
+
+  const participantTrustlayerId = readRequiredString(
+    body.participantTrustlayerId
+  );
+
+  if (!participantTrustlayerId) {
+    return validationErrorResponse("Missing participantTrustlayerId.");
+  }
+
+  try {
+    const result = await acceptTradeInvitation(
+      env.DB,
+      tradeCode,
+      participantTrustlayerId
+    );
+
+    if (result.status === "accepted") {
+      return jsonResponse({
+        success: true,
+        data: result.data
+      });
+    }
+
+    if (
+      result.status === "participant_not_found" ||
+      result.status === "trade_not_found"
+    ) {
+      return jsonResponse(
+        {
+          success: false,
+          error: {
+            code: "NOT_FOUND",
+            message: "Trade Record or participant not found."
+          }
+        },
+        {
+          status: 404
+        }
+      );
+    }
+
+    if (result.status === "forbidden") {
+      return jsonResponse(
+        {
+          success: false,
+          error: {
+            code: "FORBIDDEN",
+            message: "Participant is not part of this Trade Record."
+          }
+        },
+        {
+          status: 403
+        }
+      );
+    }
+
+    return jsonResponse(
+      {
+        success: false,
+        error: {
+          code: "CONFLICT",
+          message: "Trade Record is not awaiting participant acceptance."
+        }
+      },
+      {
+        status: 409
+      }
+    );
+  } catch (error) {
+    console.error("Unable to accept Trade Record invitation.", error);
+
+    return jsonResponse(
+      {
+        success: false,
+        error: {
+          code: "INTERNAL_ERROR",
+          message: "Unable to accept Trade Record invitation."
         }
       },
       {
@@ -132,6 +247,22 @@ async function handleCreateTrade(
         status: 500
       }
     );
+  }
+}
+
+async function parseAcceptTradeInvitationBody(
+  request: Request
+): Promise<AcceptTradeInvitationRequestBody | null> {
+  try {
+    const body = (await request.json()) as unknown;
+
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+      return null;
+    }
+
+    return body as AcceptTradeInvitationRequestBody;
+  } catch {
+    return null;
   }
 }
 

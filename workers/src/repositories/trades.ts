@@ -39,6 +39,14 @@ type TradeUserRow = {
   trustlayer_id: string;
 };
 
+type TradeAcceptanceRow = {
+  trade_id: string;
+  trade_code: string;
+  trade_status: string;
+  buyer_user_id: string | null;
+  seller_user_id: string | null;
+};
+
 type EventPayload = {
   description?: string;
   summary?: string;
@@ -61,13 +69,34 @@ export type CreateTradeResult = {
   message: string;
 };
 
+export type AcceptTradeInvitationResult =
+  | {
+      status: "accepted";
+      data: {
+        tradeCode: string;
+        publicUrl: string;
+        state: "accepted";
+        message: string;
+      };
+    }
+  | {
+      status:
+        | "forbidden"
+        | "participant_not_found"
+        | "trade_not_found"
+        | "wrong_state";
+    };
+
 const eventTypeLabels: Record<string, string> = {
+  buyer_accepted: "Buyer Accepted",
   invitation_sent: "Invitation Sent",
+  seller_accepted: "Seller Accepted",
   trade_created: "Trade Created",
   waiting_for_seller_acceptance: "Waiting for Seller Acceptance"
 };
 
 const tradeStatusLabels: Record<string, string> = {
+  accepted: "Accepted",
   awaiting_seller_acceptance: "Awaiting Seller Acceptance"
 };
 
@@ -319,6 +348,146 @@ export async function createTradeRecord(
   };
 }
 
+export async function acceptTradeInvitation(
+  db: D1Database,
+  tradeCode: string,
+  participantTrustlayerId: string
+): Promise<AcceptTradeInvitationResult> {
+  const [trade, participant] = await Promise.all([
+    getTradeForAcceptance(db, tradeCode),
+    getUserByTrustLayerId(db, participantTrustlayerId)
+  ]);
+
+  if (!trade) {
+    return { status: "trade_not_found" };
+  }
+
+  if (!participant) {
+    return { status: "participant_not_found" };
+  }
+
+  const participantRole = getParticipantRole(trade, participant.id);
+
+  if (!participantRole) {
+    return { status: "forbidden" };
+  }
+
+  if (!isAwaitingParticipant(trade.trade_status, participantRole)) {
+    return { status: "wrong_state" };
+  }
+
+  const now = new Date().toISOString();
+  const eventType =
+    participantRole === "seller" ? "seller_accepted" : "buyer_accepted";
+  const eventLabel =
+    participantRole === "seller" ? "Seller Accepted" : "Buyer Accepted";
+  const eventId = `evt_${trade.trade_code.replace("tr-", "")}_${eventType}`;
+
+  await db.batch([
+    db
+      .prepare(
+        `
+          UPDATE trades
+          SET
+            status = ?,
+            updated_at = ?
+          WHERE id = ?
+        `
+      )
+      .bind("accepted", now, trade.trade_id),
+    db
+      .prepare(
+        `
+          INSERT INTO reputation_events (
+            id,
+            event_type,
+            trade_id,
+            actor_user_id,
+            target_user_id,
+            event_payload_json,
+            event_hash,
+            blockchain_tx_id,
+            previous_event_id,
+            created_at
+          )
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `
+      )
+      .bind(
+        eventId,
+        eventType,
+        trade.trade_id,
+        participant.id,
+        participant.id,
+        JSON.stringify({
+          description: `${eventLabel} this Trade Record invitation.`
+        }),
+        `hash_${eventId}`,
+        null,
+        null,
+        now
+      )
+  ]);
+
+  return {
+    status: "accepted",
+    data: {
+      tradeCode: trade.trade_code,
+      publicUrl: `/trade/${trade.trade_code}`,
+      state: "accepted",
+      message: "Trade invitation accepted."
+    }
+  };
+}
+
+async function getTradeForAcceptance(
+  db: D1Database,
+  tradeCode: string
+): Promise<TradeAcceptanceRow | null> {
+  return db
+    .prepare(
+      `
+        SELECT
+          id AS trade_id,
+          trade_code,
+          status AS trade_status,
+          buyer_user_id,
+          seller_user_id
+        FROM trades
+        WHERE trade_code = ?
+        LIMIT 1
+      `
+    )
+    .bind(tradeCode)
+    .first<TradeAcceptanceRow>();
+}
+
+function getParticipantRole(
+  trade: TradeAcceptanceRow,
+  participantUserId: string
+): "buyer" | "seller" | null {
+  if (trade.buyer_user_id === participantUserId) {
+    return "buyer";
+  }
+
+  if (trade.seller_user_id === participantUserId) {
+    return "seller";
+  }
+
+  return null;
+}
+
+function isAwaitingParticipant(
+  tradeStatus: string,
+  participantRole: "buyer" | "seller"
+): boolean {
+  return (
+    (tradeStatus === "awaiting_seller_acceptance" &&
+      participantRole === "seller") ||
+    (tradeStatus === "awaiting_buyer_acceptance" && participantRole === "buyer")
+  );
+}
+
 async function getUserByTrustLayerId(
   db: D1Database,
   trustlayerId: string
@@ -359,12 +528,14 @@ function mapLifecycle(
   trade: TradeRecordRow,
   timeline: TradeTimelineEvent[]
 ): TradeLifecyclePayload {
+  const isAccepted = trade.trade_status === "accepted";
+
   return {
     tradeStatus: tradeStatusLabels[trade.trade_status] ?? trade.trade_status,
     invitation: {
       invitedRole: "Seller",
       invitedParticipant: trade.seller_name ?? "Unknown seller",
-      state: "Pending",
+      state: isAccepted ? "Accepted" : "Pending",
       link: `/trade/${trade.trade_code}`,
       createdBy: trade.buyer_name ?? "Unknown creator"
     },
