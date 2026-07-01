@@ -406,27 +406,38 @@ dd {
   line-height: 1.6;
 }
 
-.accept-invitation-action {
+.accept-invitation-action,
+.confirm-trade-action {
   display: grid;
   gap: 1rem;
   border-bottom: 1px solid var(--line);
   padding: 1.5rem 0;
 }
 
-.accept-invitation-action h2 {
+.accept-invitation-action h2,
+.confirm-trade-action h2 {
   margin: 0;
   font-size: clamp(1.35rem, 6vw, 2rem);
 }
 
 .accept-invitation-action p:not(.eyebrow),
-.accept-invitation-status p {
+.accept-invitation-status p,
+.confirm-trade-action p:not(.eyebrow),
+.confirm-trade-status p {
   max-width: 48rem;
   margin: 0.75rem 0 0;
   color: var(--muted);
   line-height: 1.6;
 }
 
-.accept-invitation-action button {
+.confirm-trade-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.accept-invitation-action button,
+.confirm-trade-action button {
   min-height: 2.75rem;
   width: fit-content;
   border: 1px solid var(--accent);
@@ -439,14 +450,16 @@ dd {
   padding: 0.75rem 1rem;
 }
 
-.accept-invitation-action button:disabled {
+.accept-invitation-action button:disabled,
+.confirm-trade-action button:disabled {
   border-color: var(--line);
   background: var(--line);
   color: var(--muted);
   cursor: not-allowed;
 }
 
-.accept-invitation-status p[role="alert"] {
+.accept-invitation-status p[role="alert"],
+.confirm-trade-status p[role="alert"] {
   color: #8a3527;
   font-weight: 800;
 }

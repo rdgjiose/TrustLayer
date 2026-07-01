@@ -42,6 +42,10 @@ const evidenceReferences = [
 ];
 
 const mvpParticipantTrustlayerId = "tl-4m7q2";
+const mvpBuyerTrustlayerId = "tl-9f32a";
+const mvpSellerTrustlayerId = "tl-4m7q2";
+
+type ConfirmRole = "Buyer" | "Seller";
 
 type AcceptTradeInvitationData = {
   tradeCode: string;
@@ -52,6 +56,20 @@ type AcceptTradeInvitationData = {
 
 type AcceptTradeInvitationResponse =
   | ApiSuccessResponse<AcceptTradeInvitationData>
+  | ApiErrorResponse;
+
+type ConfirmTradeData = {
+  tradeCode: string;
+  publicUrl: string;
+  state:
+    | "awaiting_seller_confirmation"
+    | "awaiting_buyer_confirmation"
+    | "recorded";
+  message: string;
+};
+
+type ConfirmTradeResponse =
+  | ApiSuccessResponse<ConfirmTradeData>
   | ApiErrorResponse;
 
 function createApiLifecycleState(
@@ -251,6 +269,61 @@ function AcceptInvitationAction({
   );
 }
 
+function ConfirmTradeAction({
+  confirmation,
+  errorMessage,
+  isConfirmingRole,
+  onConfirm,
+  successMessage
+}: {
+  confirmation: TradeConfirmationPayload;
+  errorMessage: string | null;
+  isConfirmingRole: ConfirmRole | null;
+  onConfirm: (role: ConfirmRole) => void;
+  successMessage: string | null;
+}) {
+  const buyerConfirmed = hasParticipantConfirmed(confirmation, "Buyer");
+  const sellerConfirmed = hasParticipantConfirmed(confirmation, "Seller");
+
+  return (
+    <section className="confirm-trade-action" aria-labelledby="confirm-trade">
+      <div>
+        <p className="eyebrow">MVP Prototype Action</p>
+        <h2 id="confirm-trade">Confirm Trade Completion</h2>
+        <p>
+          For this MVP prototype, these buttons simulate buyer and seller
+          confirmation actions. This is not real authentication or account
+          switching.
+        </p>
+      </div>
+      <div className="confirm-trade-buttons">
+        <button
+          disabled={Boolean(isConfirmingRole) || buyerConfirmed}
+          onClick={() => onConfirm("Buyer")}
+          type="button"
+        >
+          {isConfirmingRole === "Buyer"
+            ? "Confirming as Buyer..."
+            : "Confirm as Buyer"}
+        </button>
+        <button
+          disabled={Boolean(isConfirmingRole) || sellerConfirmed}
+          onClick={() => onConfirm("Seller")}
+          type="button"
+        >
+          {isConfirmingRole === "Seller"
+            ? "Confirming as Seller..."
+            : "Confirm as Seller"}
+        </button>
+      </div>
+      <div className="confirm-trade-status" aria-live="polite">
+        {successMessage ? <p>{successMessage}</p> : null}
+        {errorMessage ? <p role="alert">{errorMessage}</p> : null}
+      </div>
+    </section>
+  );
+}
+
 function TradeInvitation({
   invitation
 }: {
@@ -383,6 +456,16 @@ function TrustLayerNotes({ note }: { note: string }) {
   );
 }
 
+function hasParticipantConfirmed(
+  confirmation: TradeConfirmationPayload,
+  role: ConfirmRole
+): boolean {
+  return confirmation.participants.some(
+    (participant) =>
+      participant.role === role && participant.state === "Confirmed"
+  );
+}
+
 export default function TradeRecordPage() {
   const params = useParams<{ tradeCode: string }>();
   const tradeCode = params.tradeCode;
@@ -398,6 +481,15 @@ export default function TradeRecordPage() {
     null
   );
   const [acceptErrorMessage, setAcceptErrorMessage] = useState<string | null>(
+    null
+  );
+  const [isConfirmingRole, setIsConfirmingRole] = useState<ConfirmRole | null>(
+    null
+  );
+  const [confirmSuccessMessage, setConfirmSuccessMessage] = useState<
+    string | null
+  >(null);
+  const [confirmErrorMessage, setConfirmErrorMessage] = useState<string | null>(
     null
   );
 
@@ -462,6 +554,44 @@ export default function TradeRecordPage() {
     }
   }
 
+  async function handleConfirmTrade(role: ConfirmRole) {
+    setIsConfirmingRole(role);
+    setConfirmSuccessMessage(null);
+    setConfirmErrorMessage(null);
+
+    try {
+      const response = await fetch(`/api/trades/${tradeCode}/confirm`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          participantTrustlayerId:
+            role === "Buyer" ? mvpBuyerTrustlayerId : mvpSellerTrustlayerId
+        })
+      });
+      const result = (await response.json()) as ConfirmTradeResponse;
+
+      if (!response.ok || !result.success) {
+        throw new Error("Unable to confirm trade.");
+      }
+
+      const updatedTradeRecord = await fetchTradeRecord(tradeCode);
+
+      setTradeRecord(updatedTradeRecord);
+      setSelectedStateId(updatedTradeRecord.currentState);
+      setConfirmSuccessMessage(
+        result.data.state === "recorded"
+          ? "Trade Record completed."
+          : "Confirmation recorded."
+      );
+    } catch {
+      setConfirmErrorMessage("Unable to confirm trade.");
+    } finally {
+      setIsConfirmingRole(null);
+    }
+  }
+
   if (isLoading) {
     return (
       <main className="profile-page trade-page">
@@ -497,6 +627,12 @@ export default function TradeRecordPage() {
     tradeRecord.lifecycle.invitation.state === "Pending";
   const shouldShowAcceptInvitation =
     isAwaitingInvitation || Boolean(acceptSuccessMessage);
+  const isConfirmableState =
+    tradeRecord.currentState === "accepted" ||
+    tradeRecord.currentState === "awaiting_seller_confirmation" ||
+    tradeRecord.currentState === "awaiting_buyer_confirmation";
+  const shouldShowConfirmTrade =
+    isConfirmableState || Boolean(confirmSuccessMessage);
 
   return (
     <main className="profile-page trade-page">
@@ -514,6 +650,15 @@ export default function TradeRecordPage() {
           isAccepting={isAccepting}
           onAccept={handleAcceptInvitation}
           successMessage={acceptSuccessMessage}
+        />
+      ) : null}
+      {shouldShowConfirmTrade ? (
+        <ConfirmTradeAction
+          confirmation={tradeRecord.lifecycle.confirmation}
+          errorMessage={confirmErrorMessage}
+          isConfirmingRole={isConfirmingRole}
+          onConfirm={handleConfirmTrade}
+          successMessage={confirmSuccessMessage}
         />
       ) : null}
       <TradeConfirmation confirmation={selectedState.confirmation} />
